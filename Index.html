@@ -1,0 +1,1464 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>Action Item Register — v18</title>
+
+    <!-- ===== PWA / "Add to Home Screen" support ===== -->
+    <meta name="theme-color" content="#1a73e8" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AITR" />
+    <link rel="manifest" id="webManifestLink" />
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAFFklEQVR4nO3byZETWxBG4YJ4PkA0dmEJLNoEFmBJ24UCrOAtQEQhkOoOOd2/zhfBDlS3pdNJato2AAAAAAAAAMW8yj7AkacP335knwF/unx5W7abcgcj4PVUCrzEQYhYR3bcaRcnYn0ZcYdfkJDPJzLs11EX2jZiPqvIxz3kN4eQceU9rd0nNDFjz7sHt98WQsYRj2ntMqGJGS08OjEPmpjRw7oX06CJGSMsuzELmpgxw6ofk6CJGRYsOpoOmphhabanqaCJGR5mugp96xvwNhw00xmeRvsaCpqYEWGkM1YOSOkOmumMSL29dQVNzMjQ0x0rB6Q0B810RqbW/pjQkELQkNIUNOsGKmjpkAkNKQQNKYdBs26gkqMe/4s6iIqvn9+EXu/dx++h11sdK0eH6Jiv18y47qoIulF2VNnXX8XDoNmff6oSU5VzZHvUJRMaUggaUggaUuRftlPbOy1+HuWXAmWDVgvZ0vW+UQxbLmhCbqcYttQOTcxjlO43qaABmaCVpkwGlftPJmhg20SCVpku2RTuR4mggSuChhSChhSChhSChhSChhSChhSChhSChhSChhSChhSChhSChhSChhSChhSChhS5b333UPq2857CB/VHMaEhhaAh5dQrx5n/a1bFhIYUgoYUgoYUgoYUgoYUgoYUgoYUgoYUgoYUgoYUgoaUU3+Ww8vTp/dNf+/y/OJ8kvMhaAOtAR/9OwKfR9ATRkM+uj3CHkfQA6xDvnf7hN2PJ4WdvGPOupYKJnSjrLiY1n2Y0A0qTMoKZ1gBQR+oFFKls1RF0A9UDKjimSoh6Dsqh1P5bNkI+h9WCGaFM2YgaEgh6BtVJt/l+eX3n3uqnLUSgt6pEshtxETdjqCLuRcvb6y0IehfVp50K5/dGkEXwhSeR9DbGhPu6Iwr/AwRCLoInvjZIOgCiNkOQSdjb7Z1+qArT8Des1X+WaKcPuhMrBr2+MbKgH2Io+ERsw8mdKeet6VbbwN2CLpDxNvSTOc5BB2MVcMXQRtpmdLE7I+gOxxF9yhY9uYYBN1pJurR20Q7gh7w9Ol9V4SsGnFOH/TMKnAvxv1tRsbMWkPQ0x5FTWDxCNrAyKRl1fBB0AmI2Q9Bbza7Z2ukXjGz3vxE0IaYvPkI+peICcd09kfQxu5Fy/SOQdA7VpPuNl7PmJnOf+ID/jcuzy8mAUZMZGL+GxMaUgj6H1aYfCucMQNB31E5mMpny0bQD1QMp+KZKiHoA5UCqnSWqgi6QYWQKpxhBbxs1+gaVPQbJITchwndKTIwYu7HhB7gPa0JeRxBT7AOm5DnEbSB2xBbAydgewTtgFDz8KQQUggaUggaUggaUggaUh4Gffny9lXUQYBWj7qUmNDvPn7PPoIEhftRImjgSiZohemSSeX+OwyaPRqVHPUoM6G3TWfKRFO63+Q+y3F9cL5+fpN8kvqUQr5qXieePnz74XkQL4T9t1VDbll/5Sb0rVUfPIyR2qGB5qB5tQOZWvtjQkNKV9BMaWTo6a57QhM1IvX2xsoBKUNBM6URYaSz4QlN1PA02hcrB6RMBc2UhoeZrqYnNFHD0mxPJisHUcOCRUdmOzRRY4ZVP6ZPCokaIyy7MX+Vg6jRw7oXl5ftiBotPDpxD2/Vb7rAj+fAc39jhWmNPe8eQmNjWp9X1GALfeubaX1OkY97WmBMa30ZA6zExCRuHdn/C5cIeo+415Md8V6Zg9xD4PVUChgAAAAAAEDT/6wNwB90Ex/dAAAAAElFTkSuQmCC" />
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,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" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      :root{
+        --brand-500: #1a73e8;
+        --brand-600: #1157b8;
+        --text-strong: #0b2b4a;
+        --text-muted: #617088;
+        --page-bg-top: #f7faff;
+        --page-bg-bottom: #eef3fb;
+        --card-bg: #ffffff; 
+        --muted-border: #dde5ed;
+      }
+
+      html,body{height:100%}
+      body{
+        margin:0;
+        font-family: "Poppins", sans-serif;
+        background: transparent; 
+        color:var(--text-strong);
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      .container-main{
+        max-width:1250px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+
+      /* =========================================
+         DASHBOARD STYLES
+         ========================================= */
+      .dash-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .dash-card {
+        position: relative;
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .dash-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      }
+
+      .dash-card.active-filter {
+        ring: 2px solid #000;
+        background-color: #fffef0;
+      }
+
+      /* COLORS */
+      .dash-card.card-blue {
+        border-left: 6px solid #1a73e8;
+        background: linear-gradient(90deg, #fff 0%, #f4f8ff 100%);
+      }
+      .dash-card.card-blue .lbl { color: #5f6d7e; }
+      .dash-card.card-blue .val { color: #0b2b4a; }
+      
+      .dash-card.card-red {
+        border-left: 6px solid #dc3545;
+        background: linear-gradient(90deg, #fff 0%, #fff5f5 100%);
+      }
+      .dash-card.card-red .val { color: #dc3545; }
+
+      .dash-card.card-green {
+        border-left: 6px solid #198754;
+        background: linear-gradient(90deg, #fff 0%, #f0fff4 100%);
+      }
+      .dash-card.card-green .val { color: #198754; }
+
+      /* Typography */
+      .dash-card .lbl {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        opacity: 0.8;
+        position: relative; z-index: 2;
+      }
+
+      .dash-card .val {
+        font-size: 36px;
+        font-weight: 700;
+        line-height: 1;
+        position: relative; z-index: 2;
+      }
+
+      .dash-card .bg-icon {
+        position: absolute;
+        right: -10px;
+        bottom: -15px;
+        font-size: 90px;
+        opacity: 0.08;
+        transform: rotate(-15deg);
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* Mobile Stack */
+      @media (max-width: 768px) {
+        .dash-grid { grid-template-columns: 1fr; gap: 12px; }
+      }
+
+      /* =========================================
+         MAIN UI COMPONENTS
+         ========================================= */
+
+      .card-ui{
+        background:var(--card-bg);
+        border-radius:12px;
+        border:1px solid var(--muted-border);
+        box-shadow: 0 14px 50px rgba(9,30,66,0.08);
+      }
+      .card-inner{padding:16px;}
+
+      .filter-box{
+        margin-top:0px; padding:10px; border-radius:10px;
+        background:#fff; border:1px solid rgba(220,230,245,0.9);
+        display:flex; align-items:center; gap:12px; 
+        position:sticky; top:10px; z-index:200;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      }
+      .filter-bar{display:flex;gap:8px;align-items:center;width:100%;}
+      .filter-bar>*{flex:1 1 0;min-width:110px;max-width:220px;}
+      .filter-bar select,.filter-bar input{height:36px;padding:.325rem .6rem;border-radius:8px;border:1px solid #c8d3e6;background:#fff;font-size:13px; font-family: "Poppins", sans-serif;}
+      
+      .chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:#f1f7ff;border:1px solid var(--muted-border);color:var(--brand-500);font-weight:600;}
+
+      /* Toolbar Buttons */
+      .btn-toolbar-custom {
+        background: #fff; border: 1px solid #ddd;
+        color: #555; font-weight: 600; font-size: 13px;
+        padding: 6px 16px; border-radius: 8px;
+        display: inline-flex; align-items: center; gap: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+      }
+      .btn-toolbar-custom:hover { background: #f8f9fa; color: #000; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+      .table-wrap{
+        position:relative;border-radius:10px;overflow:auto;
+        border:1px solid var(--muted-border);
+        background:#fff;
+        min-height:120px;max-height:calc(100vh - 350px);
+      }
+      
+      table.table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;word-break:break-word;}
+      thead th {
+        position: sticky; top: 0; z-index: 260;
+        background: #f2f3f5 !important; 
+        color: #0f0f0f !important; 
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--muted-border);
+        font-weight: 700; font-size: 11px; text-align: left;
+      }
+      
+      tbody td{padding:10px 12px;border-bottom:1px solid #eee;vertical-align:middle;color:var(--text-strong);font-size:11px;}
+      tbody tr:last-child td { border-bottom: none; }
+      tbody tr:hover td{background:#f1f7ff;}
+
+      #dataTable thead th:nth-child(1) { width: 50px; } 
+      #dataTable thead th:nth-child(3) { width: 280px; } 
+      #dataTable thead th:nth-child(9) { width: 80px; } 
+      #dataTable tbody td:nth-child(1) { width: 50px; } 
+      #dataTable tbody td:nth-child(3) { width: 280px; } 
+      #dataTable tbody td:nth-child(9) { width: 80px; } 
+      
+      td.description{cursor:pointer;position:relative;height:66px;overflow:visible;}
+      .desc-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;line-height:1.05rem;max-height:calc(1.05rem*3+6px);}
+
+      /* STATUS BADGES */
+      .status-badge { display: inline-flex; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+      .status-open-badge { background: #ffe082; color: #6d4c41; }
+      .status-closed-badge { background: #198754; color: #fff; } 
+      .status-other-badge { background: #bbdefb; color: #1565c0; }
+
+      #loaderBar{
+        position:absolute; top:0; left:0; height:4px; width:0%;
+        background:linear-gradient(90deg,var(--brand-500),#4dabf7);
+        border-radius:2px; transition:opacity .35s ease; z-index:600;
+      }
+      .table-wrap.loading #loaderBar{opacity:1; animation:progressBarAnim 1.8s infinite linear; }
+      @keyframes progressBarAnim{ 0%{ left:0; width:0%; } 50%{ left:10%; width:75%; } 100%{ left:100%; width:0%; } }
+
+      /* ==========================================================================
+          APP-STYLE SIDE DRAWER
+          ========================================================================== */
+      
+      .float-card-backdrop{
+        position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:900;
+        display:none; justify-content: flex-end; 
+      }
+      .float-card-backdrop.show{ display:flex; animation:fadeInBackdrop .25s ease; }
+      @keyframes fadeInBackdrop{from{opacity:0}to{opacity:1}}
+
+      .float-card{
+        width: 500px; 
+        max-width: 95vw; 
+        height: 100%; 
+        background: #ffffff; 
+        color: #333;
+        border-left: 1px solid #ccc;
+        box-shadow: -10px 0 40px rgba(0,0,0,0.15);
+        font-family: "Poppins", sans-serif;
+        font-size: 13px;
+        display: flex; flex-direction: column; padding: 0;
+        transform: translateX(100%);
+        opacity: 1;
+        animation: slideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+      }
+
+      /* NEON EFFECTS */
+      .float-card.neon-open {
+        box-shadow: -4px 0 25px rgba(220, 53, 69, 0.4), inset 4px 0 10px rgba(220, 53, 69, 0.05);
+        border-left: 3px solid #dc3545;
+      }
+      .float-card.neon-closed {
+        box-shadow: -4px 0 25px rgba(25, 135, 84, 0.4), inset 4px 0 10px rgba(25, 135, 84, 0.05);
+        border-left: 3px solid #198754;
+      }
+
+      @keyframes slideInRight {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+      }
+      .float-card.hiding { animation: slideOutRight 0.3s ease forwards; }
+      @keyframes slideOutRight {
+        from { transform: translateX(0); }
+        to { transform: translateX(100%); }
+      }
+
+      /* Header */
+      .drawer-header {
+        flex: 0 0 auto;
+        padding: 24px 28px 10px 28px;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        background: #f8f9fa; 
+      }
+
+      /* Body */
+      .drawer-content {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column; 
+        overflow: hidden; 
+        padding: 0;
+      }
+      
+      .drawer-text-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px 28px 10px 28px;
+        scrollbar-width: thin;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .drawer-text-area::-webkit-scrollbar { width: 6px; }
+      .drawer-text-area::-webkit-scrollbar-track { background: transparent; }
+      .drawer-text-area::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 3px; }
+
+      /* Footer */
+      .drawer-footer {
+        flex: 0 0 auto;
+        padding: 16px 24px;
+        background: #fff;
+        border-top: 1px solid #e0e0e0;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 10;
+      }
+      .footer-group-left { display: flex; gap: 24px; }
+
+      /* Drawer Controls */
+      .float-close{
+        position:absolute; right:20px; top:20px; z-index:60;
+        border:1px solid #ddd; background:#fff;
+        font-size:20px; cursor:pointer; color:#666;
+        width: 36px; height: 36px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s;
+      }
+      .float-close:hover{ background:#f0f0f0; color:#000; transform: rotate(90deg); }
+
+      .nav-controls {
+        position: absolute; top: 20px; right: 110px; 
+        display: flex; gap: 8px;
+      }
+      .nav-arrow{
+        position: static; width: 36px; height: 36px;
+        background: #fff; border:1px solid #ddd;
+        color: #666; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; font-size: 16px; transition: all 0.2s;
+      }
+      .nav-arrow:hover{ background: #f0f0f0; color:#000; }
+
+      .btn-download-doc {
+        position: absolute; top: 20px; right: 65px;
+        width: 36px; height: 36px;
+        border: 1px solid #1a73e8; background: #fff;
+        color: #1a73e8; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: all 0.2s;
+      }
+      .btn-download-doc:hover { background: #1a73e8; color: #fff; }
+
+      .title-row h5{ display: inline-block; margin: 0; color: var(--brand-500); font-size: 1.5rem; font-weight: 600; }
+      .ref-box{
+        position: static; display: inline-flex;
+        margin-left: 12px;
+        background: #eef6ff; 
+        border: 1px solid #d0e3ff;
+        border-radius:8px; padding:4px 10px;
+        align-items:center; gap:8px;
+        color: #1a73e8; font-weight:700;
+        font-size:12px;
+      }
+      .ref-box .label{ font-size:11px; color: #666; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; }
+      .ref-box .value{ font-size:12px; color: #333; }
+      
+      .meta{ color:#666; font-size:13px; margin-top: 8px; padding-bottom: 4px; }
+      .meta span { color: #333; font-weight: 600; }
+
+      /* Footer Items */
+      .footer-item { display: flex; flex-direction: column; }
+      .footer-label { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 2px; }
+      .footer-value { font-size: 14px; font-weight: 600; color: #333; }
+      
+      .btn-mark-closed {
+        padding: 10px 20px; font-size: 13px; border-radius: 8px;
+        background: #d9534f; color: #fff; border: none;
+        cursor: pointer; font-weight: 600; transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .btn-mark-closed:hover { background: #c9302c; }
+      .btn-mark-closed:disabled { background: #e9ecef; color: #adb5bd; cursor: not-allowed; border: 1px solid #dee2e6; }
+
+      /* DRAWER CONTENT LAYOUT */
+      .desc-box {
+        flex: 0 0 auto; min-height: 120px;
+        background: #f8f9fa; border: 1px solid #e9ecef;
+        padding: 15px; border-radius: 12px;
+      }
+      .desc-box strong {
+        color: #6c757d; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+        display: block; margin-bottom: 8px;
+      }
+      .desc-content { font-size: 15px; line-height: 1.6; color: #212529; }
+
+      .split-grid {
+        display: grid; grid-template-columns: 200px 1fr; gap: 20px;
+        flex: 1; min-height: 0;
+      }
+      .meta-left { display: flex; flex-direction: column; gap: 16px; }
+      .meta-card { background: #fff; border: 1px solid #eee; padding: 12px; border-radius: 10px; }
+      .meta-card strong{ display: block; color:#777; font-weight:600; font-size:11px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+
+      .image-right {
+        position: relative; border-radius: 12px; overflow: hidden;
+        border: 1px solid #eee; background: #f8f9fa;
+        min-height: 200px; display: flex; align-items: center; justify-content: center;
+      }
+      .image-container-large { width: 100%; height: 100%; border: none; background: transparent; }
+      .image-container-large img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+      .no-image-text { color: #999; font-size: 13px; font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; height:100%; }
+
+      @media (max-width: 768px) {
+        .split-grid { grid-template-columns: 1fr; }
+        .drawer-footer { flex-direction: column; gap: 16px; align-items: stretch; }
+        .footer-group-left { justify-content: space-between; }
+        .btn-mark-closed { width: 100%; }
+      }
+
+      #lastUpdated{ text-align:right; color:var(--text-muted); font-size:12.5px; margin-top:8px; }
+      #loader{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,252,255,0.95)); z-index:220; transition:opacity .22s ease; }
+      #loader.hidden{ opacity:0; pointer-events:none; }
+
+      /* ==========================================================================
+          ADD NEW ACTION ITEM — floating button + drawer + toast
+          ========================================================================== */
+      .fab-add{
+        position: fixed;
+        right: 24px;
+        bottom: calc(24px + env(safe-area-inset-bottom));
+        width: 58px; height: 58px;
+        border-radius: 50%;
+        background: var(--brand-500);
+        color: #fff;
+        border: none;
+        box-shadow: 0 8px 24px rgba(26,115,232,0.45);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 26px;
+        cursor: pointer;
+        z-index: 500;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      }
+      .fab-add:hover{ background: var(--brand-600); transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 28px rgba(26,115,232,0.55); }
+      .fab-add:active{ transform: scale(0.96); }
+      @media (max-width: 768px){
+        .fab-add{ right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); width: 54px; height: 54px; font-size: 24px; }
+      }
+
+      .add-card .drawer-text-area{ gap: 16px; }
+      .form-field{ display:flex; flex-direction:column; gap:6px; }
+      .form-field label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#6c757d; }
+      .form-field .req{ color:#dc3545; margin-left:3px; }
+      .form-field input[type="text"],
+      .form-field input[type="date"],
+      .form-field select,
+      .form-field textarea{
+        border:1px solid #c8d3e6; border-radius:8px; padding:9px 12px;
+        font-size:14px; font-family:"Poppins", sans-serif; color:var(--text-strong);
+        background:#fff;
+      }
+      .form-field textarea{ resize:vertical; min-height:80px; }
+      .form-field input:focus, .form-field select:focus, .form-field textarea:focus{
+        outline:none; border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
+      }
+      .form-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+      @media (max-width:480px){ .form-grid-2{ grid-template-columns:1fr; } }
+
+      .image-upload-box{
+        border:1.5px dashed #c8d3e6; border-radius:10px; padding:14px;
+        display:flex; align-items:center; gap:12px; cursor:pointer; background:#f8f9fa;
+        transition: border-color .15s ease, background .15s ease;
+      }
+      .image-upload-box:hover{ border-color:var(--brand-500); background:#f1f7ff; }
+      .image-upload-box .upload-icon{ font-size:22px; color:var(--brand-500); flex:0 0 auto; }
+      .image-upload-box .upload-text{ font-size:13px; color:#6c757d; }
+      .image-preview-thumb{ width:54px; height:54px; border-radius:8px; object-fit:cover; flex:0 0 auto; display:none; }
+      .image-clear-btn{ margin-left:auto; border:none; background:none; color:#dc3545; font-size:13px; font-weight:600; cursor:pointer; display:none; }
+
+      .btn-save-addition{
+        padding:10px 22px; font-size:13px; border-radius:8px;
+        background: var(--brand-500); color:#fff; border:none;
+        cursor:pointer; font-weight:600; transition:all .2s; width:100%;
+        display:flex; align-items:center; justify-content:center; gap:8px;
+      }
+      .btn-save-addition:hover{ background: var(--brand-600); }
+      .btn-save-addition:disabled{ background:#a8c5ef; cursor:not-allowed; }
+
+      .app-toast{
+        position: fixed; left:50%; bottom: calc(24px + env(safe-area-inset-bottom));
+        transform: translateX(-50%) translateY(20px);
+        background:#0b2b4a; color:#fff; padding:12px 20px; border-radius:10px;
+        font-size:13.5px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.25);
+        display:flex; align-items:center; gap:10px;
+        z-index:1000; opacity:0; pointer-events:none;
+        transition: opacity .25s ease, transform .25s ease;
+        max-width: 90vw;
+      }
+      .app-toast.show{ opacity:1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
+      .app-toast.toast-error{ background:#7a1f27; }
+      .app-toast i{ font-size:16px; }
+    </style>
+  </head>
+  <body>
+
+    <main class="container-main">
+      
+      <div class="d-flex justify-content-end gap-2 mb-3">
+        <button id="btnRefreshTop" class="btn-toolbar-custom" title="Refresh Data">
+          <i class="bi bi-arrow-clockwise text-primary"></i> Refresh
+        </button>
+        <button id="btnPrintTop" class="btn-toolbar-custom" title="Print Table">
+          <i class="bi bi-printer text-dark"></i> Print
+        </button>
+      </div>
+
+      <div class="dash-grid">
+        
+        <div class="dash-card card-blue" id="cardTotal" onclick="applyStatusFilter('All')">
+          <div class="lbl">Total Actions</div>
+          <div class="val" id="statTotal">0</div>
+          <i class="bi bi-folder2-open bg-icon"></i>
+        </div>
+
+        <div class="dash-card card-red" id="cardOpen" onclick="applyStatusFilter('Open')">
+          <div class="lbl">Open Actions</div>
+          <div class="val" id="statOpen">0</div>
+          <i class="bi bi-exclamation-triangle bg-icon"></i>
+        </div>
+
+        <div class="dash-card card-green" id="cardClosed" onclick="applyStatusFilter('Closed')">
+          <div class="lbl">Closed Actions</div>
+          <div class="val" id="statClosed">0</div>
+          <i class="bi bi-check-circle bg-icon"></i>
+        </div>
+
+      </div>
+
+      <div class="card-ui">
+        <div class="card-inner">
+          
+          <div class="filter-box" id="filterBox">
+            <div class="filter-bar">
+              <select id="filterDept" class="form-select form-select-sm"><option value="">All Departments</option></select>
+              <select id="filterResp" class="form-select form-select-sm"><option value="">All Responsible Persons</option></select>
+              <select id="filterRef" class="form-select form-select-sm"><option value="">All References</option></select>
+              <select id="filterMonth" class="form-select form-select-sm"><option value="">All Months</option></select>
+              <select id="filterYear" class="form-select form-select-sm"><option value="">All Years</option></select>
+              <input id="filterText" class="form-control form-control-sm" placeholder="Search text..." />
+              
+              <button id="btnClearFilters" class="btn btn-outline-secondary btn-sm" style="flex:0 0 auto">Clear</button>
+            </div>
+            <div class="d-flex align-items-center ms-3" id="activeChips"></div>
+          </div>
+
+          <div class="table-wrap mt-2" id="tableWrap" role="region" aria-live="polite">
+            <div id="loaderBar" aria-hidden="true"></div>
+            <div id="loader" aria-hidden="false">
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <div style="display:flex;align-items:center;">
+                  <span style="width:10px;height:10px;border-radius:999px;background:var(--brand-500);display:inline-block;margin:0 6px;opacity:.6"></span>
+                  <span style="width:10px;height:10px;border-radius:999px;background:var(--brand-500);display:inline-block;margin:0 6px;opacity:.6"></span>
+                  <span style="width:10px;height:10px;border-radius:999px;background:var(--brand-500);display:inline-block;margin:0 6px;opacity:.6"></span>
+                </div>
+                <div style="margin-top:10px;font-size:13px;color:var(--text-muted)">Loading data…</div>
+              </div>
+            </div>
+
+            <table class="table align-middle table-hover" id="dataTable" aria-describedby="tableWrap">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Department</th>
+                  <th>Description</th>
+                  <th>Reference</th>
+                  <th>Initiation Date</th>
+                  <th>Target Date</th>
+                  <th>Action By</th>
+                  <th>Responsible Person</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+
+          <div id="lastUpdated"></div>
+        </div>
+      </div>
+    </main>
+
+    <div class="float-card-backdrop" id="floatBackdrop" aria-hidden="true">
+      <div class="float-card" role="dialog" aria-modal="true" aria-hidden="true" id="floatCard">
+        
+        <div class="drawer-header">
+          <div class="nav-controls">
+            <div class="nav-arrow" id="navPrev" title="Previous"><i class="bi bi-chevron-left"></i></div>
+            <div class="nav-arrow" id="navNext" title="Next"><i class="bi bi-chevron-right"></i></div>
+          </div>
+          <div class="btn-download-doc" id="btnDownloadDoc" title="Download Word Doc"><i class="bi bi-file-word"></i></div>
+          <button class="float-close" id="floatClose" aria-label="Close">&times;</button>
+
+          <div class="title-row" style="display:flex; align-items:center;">
+            <h5 id="floatTitle">#</h5>
+            <div class="ref-box" id="refBox"><div class="label">Reference</div><div class="value" id="refValue"></div></div>
+          </div>
+          <div class="meta" id="floatMeta"></div>
+        </div>
+
+        <div class="drawer-content" id="floatBodyContainer">
+          <div class="drawer-text-area" id="floatBody"></div>
+        </div>
+
+        <div class="drawer-footer" id="floatFooter"></div>
+
+      </div>
+    </div>
+
+    <div class="float-card-backdrop" id="lightboxBackdrop" style="z-index: 950; display: none; align-items: center; justify-content: center;">
+      <div id="lightboxContent" style="position: relative; max-width: 96vw; max-height: 96vh; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
+        <button class="float-close" id="lightboxClose" aria-label="Close" style="color: white; right: -24px; top: -24px; z-index: 960; background: rgba(0,0,0,0.5); border:none; width: 40px; height: 40px; line-height: 1.2;">&times;</button>
+        <img id="lightboxImage" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);" alt="Zoomed Action Item Image"/>
+      </div>
+    </div>
+
+    <!-- Floating "Add New" button -->
+    <button class="fab-add" id="fabAdd" title="Add new action item" aria-label="Add new action item">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+
+    <!-- Add New Action Item drawer -->
+    <div class="float-card-backdrop" id="addBackdrop" aria-hidden="true">
+      <div class="float-card add-card" role="dialog" aria-modal="true" aria-hidden="true" id="addCard">
+
+        <div class="drawer-header">
+          <button class="float-close" id="addClose" aria-label="Close">&times;</button>
+          <div class="title-row" style="display:flex; align-items:center;">
+            <h5>Add New Action Item</h5>
+          </div>
+          <div class="meta">Fill in the details below — required fields are marked <span style="color:#dc3545">*</span></div>
+        </div>
+
+        <div class="drawer-content">
+          <form class="drawer-text-area" id="addForm">
+
+            <div class="form-field">
+              <label>Department <span class="req">*</span></label>
+              <input type="text" id="addDepartment" list="deptOptions" placeholder="e.g. Plant B" required />
+              <datalist id="deptOptions"></datalist>
+            </div>
+
+            <div class="form-field">
+              <label>Description <span class="req">*</span></label>
+              <textarea id="addDescription" placeholder="Describe the observation or action needed" required></textarea>
+            </div>
+
+            <div class="form-field">
+              <label>Reference <span class="req">*</span></label>
+              <input type="text" id="addReference" list="refOptions" placeholder="e.g. SHE Inspection" required />
+              <datalist id="refOptions"></datalist>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label>Initiation Date <span class="req">*</span></label>
+                <input type="date" id="addInitiationDate" required />
+              </div>
+              <div class="form-field">
+                <label>Target Date <span class="req">*</span></label>
+                <input type="date" id="addTargetDate" required />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-field">
+                <label>Action By <span class="req">*</span></label>
+                <input type="text" id="addActionBy" list="actionByOptions" placeholder="e.g. SM (Engg & IP)" required />
+                <datalist id="actionByOptions"></datalist>
+              </div>
+              <div class="form-field">
+                <label>Responsible Person <span class="req">*</span></label>
+                <input type="text" id="addResponsiblePerson" list="respOptions" placeholder="e.g. Mr. Radhakrishnan" required />
+                <datalist id="respOptions"></datalist>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label>Photo Evidence (optional)</label>
+              <label class="image-upload-box" for="addImageInput">
+                <i class="bi bi-camera upload-icon"></i>
+                <span class="upload-text" id="uploadHintText">Tap to attach a photo</span>
+                <img class="image-preview-thumb" id="addImagePreview" alt="Selected" />
+                <button type="button" class="image-clear-btn" id="addImageClear">Remove</button>
+              </label>
+              <input type="file" id="addImageInput" accept="image/*" capture="environment" style="display:none" />
+            </div>
+
+          </form>
+        </div>
+
+        <div class="drawer-footer">
+          <button type="button" class="btn-save-addition" id="btnSaveAddition">
+            <i class="bi bi-check2-circle"></i> Save Action Item
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="app-toast" id="appToast"><i class="bi bi-check-circle-fill"></i><span id="appToastText"></span></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // ⚠️ UPDATE THIS URL
+      const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxgXF8X-qGBO-gWWMA0Gs5uKTy5aOEqG-DCKBJ30zoCeBY37WFaryaKzXr3M7Xhd21T/exec";
+
+      // DOM refs
+      const tableBody = document.getElementById('tableBody');
+      const statTotalEl = document.getElementById('statTotal');
+      const statOpenEl = document.getElementById('statOpen');
+      const statClosedEl = document.getElementById('statClosed');
+      
+      const cardTotal = document.getElementById('cardTotal');
+      const cardOpen = document.getElementById('cardOpen');
+      const cardClosed = document.getElementById('cardClosed');
+
+      const btnRefreshTop = document.getElementById('btnRefreshTop');
+      const btnPrintTop = document.getElementById('btnPrintTop');
+      const loader = document.getElementById('loader');
+      const tableWrap = document.getElementById('tableWrap');
+      const lastUpdatedEl = document.getElementById('lastUpdated');
+      const filterDept = document.getElementById('filterDept');
+      const filterResp = document.getElementById('filterResp');
+      const filterRef = document.getElementById('filterRef');
+      const filterMonth = document.getElementById('filterMonth');
+      const filterYear = document.getElementById('filterYear');
+      const filterText = document.getElementById('filterText');
+      const btnClear = document.getElementById('btnClearFilters');
+      const activeChips = document.getElementById('activeChips');
+      const loaderBar = document.getElementById('loaderBar');
+
+      // popup refs
+      const floatBackdrop = document.getElementById('floatBackdrop');
+      const floatCard = document.getElementById('floatCard');
+      const floatClose = document.getElementById('floatClose');
+      const floatTitle = document.getElementById('floatTitle');
+      const floatMeta = document.getElementById('floatMeta');
+      const floatBody = document.getElementById('floatBody');
+      const floatFooter = document.getElementById('floatFooter');
+      const refValue = document.getElementById('refValue');
+      const navPrev = document.getElementById('navPrev');
+      const navNext = document.getElementById('navNext');
+      const btnDownloadDoc = document.getElementById('btnDownloadDoc');
+      
+      // Lightbox DOM refs
+      const lightboxBackdrop = document.getElementById('lightboxBackdrop');
+      const lightboxImage = document.getElementById('lightboxImage');
+      const lightboxClose = document.getElementById('lightboxClose');
+
+      let allData = [];
+      let filteredData = [];
+      let currentIndex = -1;
+      let activeStatusFilter = 'All'; // 'All', 'Open', 'Closed'
+
+      function animateCount(el, newVal, duration = 600){
+        const start = Number(el.textContent) || 0;
+        const end = Number(newVal) || 0;
+        if (start === end) { el.textContent = end; return; }
+        const startTs = performance.now();
+        function tick(ts){ const progress = Math.min(1,(ts-startTs)/duration); const value = Math.round(start + (end-start)*progress); el.textContent = value; if(progress<1) requestAnimationFrame(tick); else el.textContent = end; }
+        requestAnimationFrame(tick);
+      }
+
+      function cleanDate(dateString){
+        if (!dateString) return "";
+        let dateObj;
+        if (typeof dateString === 'string') {
+            if (dateString.includes('/')) {
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const monthPart = parts[1] || '1'; 
+                    dateObj = new Date(`${monthPart}/${parts[0]}/${parts[2]}`);
+                }
+            }
+            if (!dateObj || isNaN(dateObj.getTime())) { dateObj = new Date(dateString); }
+        } else if (typeof dateString === 'number' && dateString > 1000000000000) {
+            dateObj = new Date(dateString);
+        } else if (typeof dateString === 'number' && dateString < 100000 && dateString > 25569) {
+            const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+            dateObj = new Date(excelEpoch.getTime() + (dateString * 24 * 60 * 60 * 1000));
+        } else {
+            dateObj = new Date(String(dateString));
+        }
+        if (isNaN(dateObj.getTime())) { return String(dateString).substring(0, 10).replace('T', ''); }
+        const year = dateObj.getFullYear();
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; 
+        const month = monthNames[dateObj.getMonth()];
+        const day = ('0' + dateObj.getDate()).slice(-2);
+        return `${day}-${month}-${year}`; 
+      }
+
+      function dateHelper(dateString){
+        if (!dateString) return '';
+        const cleaned = cleanDate(dateString);
+        const parts = cleaned.split('-');
+        if (parts.length === 3) {
+          const [day, monthName, year] = parts;
+          const monthMap = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+          const month = monthMap[monthName];
+          if (month && year.length === 4) return `${year}-${month}-${day}`;
+        }
+        if (typeof dateString === 'string' && dateString.length >= 10 && (dateString.includes('-') || dateString.includes('/'))) {
+            return dateString.substring(0, 10).replace(/\//g, '-');
+        }
+        return '';
+      }
+
+      function getStatusBadgeHtml(statusRaw) {
+          const statusLower = statusRaw.toLowerCase();
+          let badgeClass = 'status-other-badge';
+          if(statusLower==='closed'){ badgeClass='status-closed-badge'; }
+          else if(statusLower==='open') { badgeClass='status-open-badge'; }
+          return `<div class="status-badge ${badgeClass}">${statusRaw}</div>`;
+      }
+
+      function updateTableRowStatusInDOM(rowId, newStatus) {
+          const selector = `tr[data-row="${rowId}"]`;
+          const rowsToUpdate = document.querySelectorAll(selector);
+          const statusHtml = getStatusBadgeHtml(newStatus);
+          rowsToUpdate.forEach(row => {
+              const statusCell = row.querySelector('.status-col'); 
+              if (statusCell) {
+                  statusCell.innerHTML = statusHtml;
+                  const json = row.getAttribute('data-json');
+                  if (json) {
+                      const obj = JSON.parse(decodeURIComponent(json));
+                      obj.Status = newStatus;
+                      row.setAttribute('data-json', encodeURIComponent(JSON.stringify(obj)));
+                  }
+              }
+          });
+      }
+
+      function showProgressBar(){
+        if(!tableWrap) return;
+        tableWrap.classList.add('loading');
+        loaderBar.style.opacity = '1';
+        loaderBar.style.width = '0%';
+      }
+      function hideProgressBar(){
+        if(!tableWrap) return;
+        loaderBar.style.width = '100%';
+        setTimeout(()=>{
+          tableWrap.classList.remove('loading');
+          loaderBar.style.opacity = '0';
+          loaderBar.style.width = '0%';
+        }, 420);
+      }
+
+      function showLoader(){ if(loader){ loader.style.display='flex'; loader.classList.remove('hidden'); } }
+      function hideLoader(){ if(loader){ loader.classList.add('hidden'); setTimeout(()=> loader.style.display='none',360); } }
+
+      // Updated Layout for NO HEADER
+      function updateLayoutOffsets(){
+        const filter = document.getElementById('filterBox');
+        const filterHeight = filter ? filter.getBoundingClientRect().height : 64;
+        const offset = 10; // Simple small offset
+        if (filter) filter.style.top = offset + 'px';
+        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        // Space needed = Dashboard + Toolbar + Filter + Padding
+        const used = 290; 
+        const max = Math.max(300, vh - used);
+        if (tableWrap) tableWrap.style.maxHeight = max + 'px';
+      }
+
+      function sortData(data){
+        data.sort((a,b)=>{
+          const dateA = dateHelper(a["Initiation Date"]);
+          const dateB = dateHelper(b["Initiation Date"]);
+          const tsA = new Date(dateA).getTime();
+          const tsB = new Date(dateB).getTime();
+          if (isNaN(tsA) && isNaN(tsB)) return 0;
+          if (isNaN(tsA)) return 1; 
+          if (isNaN(tsB)) return -1; 
+          if(tsA > tsB) return -1; 
+          if(tsA < tsB) return 1;
+          return 0;
+        });
+      }
+
+      async function fetchData(){
+        updateLayoutOffsets();
+        if (!SCRIPT_BASE_URL){ tableBody.innerHTML = `<tr><td colspan="9" class="text-danger text-center">SCRIPT_BASE_URL not set.</td></tr>`; hideLoader(); hideProgressBar(); return; }
+        showLoader();
+        showProgressBar();
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-primary">Loading data...</td></tr>`;
+        try{
+          const res = await fetch(SCRIPT_BASE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const json = await res.json();
+          
+          if (Array.isArray(json)) allData = json;
+          else if (json && Array.isArray(json.data)) allData = json.data;
+          else if (json && Array.isArray(json.records)) allData = json.records;
+          else { let arr=[]; if (json && typeof json === 'object'){ for(const k of Object.keys(json)){ if(Array.isArray(json[k])){ arr = json[k]; break; } } } allData = arr || []; }
+
+          sortData(allData);
+
+          let serverTimeValue = null;
+          if (json && typeof json === 'object') serverTimeValue = json.serverTime || json.server_time || json.lastUpdated || json.last_updated || json.timestamp || json.time || json.now;
+          if (serverTimeValue){
+            let parsed=null; try{ parsed = new Date(serverTimeValue); }catch(e){ parsed=null; }
+            if(!parsed || isNaN(parsed)){ const num = Number(serverTimeValue); if(!isNaN(num)) parsed = new Date(num); }
+            if(parsed && !isNaN(parsed)) lastUpdatedEl.textContent = "Last updated on " + parsed.toLocaleString('en-GB', { timeZone:'Asia/Kolkata', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) + " (server)";
+          }
+          if(!lastUpdatedEl.textContent){ const now=new Date(); lastUpdatedEl.textContent = "Last updated on " + now.toLocaleString('en-GB', { timeZone:'Asia/Kolkata', year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) + " (client)"; }
+
+          populateFilters();
+          renderTable();
+        }catch(err){
+          console.error('Fetch error', err);
+          tableBody.innerHTML = `<tr><td colspan="9" class="text-danger text-center">Failed to load data. Check Apps Script & permissions.</td></tr>`;
+          animateCount(statTotalEl,0); animateCount(statOpenEl,0); animateCount(statClosedEl,0);
+        }finally{
+          const tbl = document.getElementById('dataTable'); if(tbl){ tbl.classList.add('table-fade'); setTimeout(()=> tbl.classList.add('show'),40); }
+          hideLoader();
+          hideProgressBar();
+        }
+      }
+
+      function populateFilters(){
+        const currentDept = filterDept.value; const currentResp = filterResp.value; const currentRef = filterRef.value;
+        const depts = [...new Set(allData.map(d => d.Department).filter(Boolean))].sort();
+        const resps = [...new Set(allData.map(d => d["Responsible Person"]).filter(Boolean))].sort();
+        const refs = [...new Set(allData.map(d => d.Reference).filter(Boolean))].sort();
+        const actionBys = [...new Set(allData.map(d => d["Action By"]).filter(Boolean))].sort();
+
+        // Feed the same known values into the "Add New Action Item" form as suggestions
+        const fillDatalist = (id, values) => {
+          const el = document.getElementById(id);
+          if (el) el.innerHTML = values.map(v => `<option value="${String(v).replace(/"/g,'&quot;')}"></option>`).join('');
+        };
+        fillDatalist('deptOptions', depts);
+        fillDatalist('respOptions', resps);
+        fillDatalist('refOptions', refs);
+        fillDatalist('actionByOptions', actionBys);
+
+        const allDates = allData.map(d => dateHelper(d["Initiation Date"])).filter(Boolean);
+        const months = [...new Set(allDates.map(d => d.substring(5,7)))].sort();
+        const years = [...new Set(allDates.map(d => d.substring(0,4)))].sort((a,b)=>b-a);
+        const monthNames=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const getMonthName = (m) => monthNames[parseInt(m,10)] || m;
+
+        filterMonth.innerHTML = '<option value="">All Months</option>' + months.map(m => `<option value="${m}" ${m===filterMonth.value? 'selected':''}>${getMonthName(m)}</option>`).join('');
+        filterYear.innerHTML = '<option value="">All Years</option>' + years.map(y => `<option value="${y}" ${y===filterYear.value? 'selected':''}>${y}</option>`).join('');
+        filterDept.innerHTML = '<option value="">All Departments</option>' + depts.map(v => `<option value="${v}" ${v===currentDept? 'selected':''}>${v}</option>`).join('');
+        filterResp.innerHTML = '<option value="">All Responsible Persons</option>' + resps.map(v => `<option value="${v}" ${v===currentResp? 'selected':''}>${v}</option>`).join('');
+        filterRef.innerHTML = '<option value="">All References</option>' + refs.map(v => `<option value="${v}" ${v===currentRef? 'selected':''}>${v}</option>`).join('');
+        renderActiveChips();
+      }
+
+      function renderActiveChips(){
+        activeChips.innerHTML = '';
+        const chips = [];
+        if(activeStatusFilter !== 'All') chips.push(['Status', activeStatusFilter]);
+        if(filterDept.value) chips.push(['Department', filterDept.value]);
+        if(filterResp.value) chips.push(['Person', filterResp.value]);
+        if(filterRef.value) chips.push(['Reference', filterRef.value]);
+        if(filterMonth.value) chips.push(['Month', filterMonth.options[filterMonth.selectedIndex].text || filterMonth.value]);
+        if(filterYear.value) chips.push(['Year', filterYear.value]);
+        if(filterText.value) chips.push(['Search', filterText.value]);
+
+        chips.forEach(([k,v])=>{
+          const el = document.createElement('div'); el.className='chip'; el.style.marginRight='8px';
+          el.innerHTML = `${k}: ${v} <span style="opacity:.7;margin-left:8px;cursor:pointer;font-weight:600">✕</span>`;
+          el.addEventListener('click', ()=>{ 
+            if(k==='Status') { applyStatusFilter('All'); return; }
+            if(k==='Department') filterDept.value=''; if(k==='Person') filterResp.value=''; if(k==='Reference') filterRef.value=''; if(k==='Month') filterMonth.value=''; if(k==='Year') filterYear.value=''; if(k==='Search') filterText.value=''; populateFilters(); renderTable(); 
+          });
+          activeChips.appendChild(el);
+        });
+      }
+
+      function applyStatusFilter(status) {
+        activeStatusFilter = status;
+        cardTotal.classList.remove('active-filter');
+        cardOpen.classList.remove('active-filter');
+        cardClosed.classList.remove('active-filter');
+        
+        if(status === 'All') cardTotal.classList.add('active-filter');
+        if(status === 'Open') cardOpen.classList.add('active-filter');
+        if(status === 'Closed') cardClosed.classList.add('active-filter');
+
+        renderTable();
+      }
+
+      function renderTable(){
+        let data = allData || [];
+
+        // 1. Apply Status Filter from Dashboard Cards
+        if (activeStatusFilter === 'Open') {
+          data = data.filter(r => (r.Status || '').toString().trim().toLowerCase() === 'open');
+        } else if (activeStatusFilter === 'Closed') {
+          data = data.filter(r => (r.Status || '').toString().trim().toLowerCase() === 'closed');
+        }
+
+        // 2. Apply Dropdown Filters
+        if(filterDept.value) data = data.filter(r => (r.Department || '') === filterDept.value);
+        if(filterResp.value) data = data.filter(r => (r["Responsible Person"] || '') === filterResp.value);
+        if(filterRef.value) data = data.filter(r => (r.Reference || '') === filterRef.value);
+        if(filterYear.value && filterYear.value !== "") { 
+          data = data.filter(r => dateHelper(r["Initiation Date"]).startsWith(filterYear.value));
+        }
+        if(filterMonth.value && filterMonth.value !== "") { 
+          const targetMonth = filterMonth.value;
+          const targetYear = filterYear.value;
+          data = data.filter(r => {
+              const date = dateHelper(r["Initiation Date"]);
+              if (!date) return false;
+              const month = date.substring(5,7);
+              const year = date.substring(0,4);
+              if (targetYear && targetYear !== "") { return year === targetYear && month === targetMonth; } else { return month === targetMonth; }
+          });
+        }
+        if(filterText.value){ const s = filterText.value.toLowerCase(); data = data.filter(r => (r.Description || '').toLowerCase().includes(s) || (r.Reference || '').toLowerCase().includes(s)); }
+        
+        filteredData = data; 
+        updateStats();
+
+        const createRow = (r) => {
+          const statusRaw = (r.Status || '').toString().trim();
+          const statusLower = statusRaw.toLowerCase();
+          let statusClass=''; 
+          let badgeClass = 'status-other-badge';
+          if(statusLower==='closed'){ statusClass=''; badgeClass='status-closed-badge'; }
+          else if(statusLower==='open') { statusClass=''; badgeClass='status-open-badge'; }
+
+          const statusDisplay = `<div class="status-badge ${badgeClass}">${statusRaw}</div>`;
+          const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+          const initiationDate = cleanDate(r["Initiation Date"]) || "";
+          const targetDate = cleanDate(r["Target Date"]) || "";
+
+          return `<tr class="${statusClass}" data-row="${r.Row || ''}" data-json='${encodeURIComponent(JSON.stringify(r))}'>
+            <td>${r.Row || ""}</td>
+            <td>${(r.Department || "")}</td>
+            <td class="description" data-desc="${desc}" data-slno="${r.Row || ''}" data-dept="${r.Department || ''}" tabindex="0" aria-label="Description"><div class="desc-text">${desc}</div></td>
+            <td>${r.Reference || ""}</td>
+            <td>${initiationDate}</td>
+            <td>${targetDate}</td>
+            <td>${r["Action By"] || ""}</td>
+            <td>${r["Responsible Person"] || ""}</td>
+            <td class="status-col">${statusDisplay}</td>
+          </tr>`;
+        };
+
+        tableBody.innerHTML = filteredData.length ? filteredData.map(createRow).join('') : `<tr><td colspan="9" class="text-muted text-center">No matching records</td></tr>`;
+        attachRowClickHandlers();
+      }
+
+      function updateStats(){
+        let contextData = allData || [];
+        if(filterDept.value) contextData = contextData.filter(r => (r.Department || '') === filterDept.value);
+        if(filterResp.value) contextData = contextData.filter(r => (r["Responsible Person"] || '') === filterResp.value);
+        if(filterRef.value) contextData = contextData.filter(r => (r.Reference || '') === filterRef.value);
+        if(filterYear.value) contextData = contextData.filter(r => dateHelper(r["Initiation Date"]).startsWith(filterYear.value));
+        if(filterMonth.value) contextData = contextData.filter(r => dateHelper(r["Initiation Date"]).substring(5,7) === filterMonth.value);
+        if(filterText.value) { const s = filterText.value.toLowerCase(); contextData = contextData.filter(r => (r.Description || '').toLowerCase().includes(s)); }
+
+        const total = contextData.length || 0;
+        const open = contextData.filter(r => (r.Status || '').toString().trim().toLowerCase()==='open').length || 0;
+        const closed = contextData.filter(r => (r.Status || '').toString().trim().toLowerCase()==='closed').length || 0;
+
+        animateCount(statTotalEl, total); 
+        animateCount(statOpenEl, open); 
+        animateCount(statClosedEl, closed);
+        
+        renderActiveChips();
+      }
+
+      function attachRowClickHandlers(){
+        document.querySelectorAll('#dataTable tbody tr').forEach((tr)=>{
+          if(tr._clickHandler) tr.removeEventListener('click', tr._clickHandler);
+        });
+        document.querySelectorAll('#dataTable tbody tr').forEach((tr, idx)=>{
+          tr.style.cursor = 'pointer';
+          tr._clickHandler = function(e){
+            const json = tr.getAttribute('data-json');
+            if(!json) return;
+            const obj = JSON.parse(decodeURIComponent(json));
+            currentIndex = filteredData.findIndex(item => String(item.Row) === String(obj.Row));
+            openFloatCardByIndex(currentIndex);
+          };
+          tr.addEventListener('click', tr._clickHandler);
+        });
+      }
+
+      function openFloatCardByIndex(index){
+        if(index < 0 || index >= filteredData.length) return;
+        currentIndex = index;
+        const obj = filteredData[currentIndex];
+        populateFloatCard(obj);
+        floatBackdrop.classList.add('show'); floatCard.classList.remove('hiding'); floatBackdrop.setAttribute('aria-hidden','false'); floatCard.setAttribute('aria-hidden','false');
+        updateNavVisibility();
+      }
+
+      function openLightbox(src) {
+        lightboxImage.src = src;
+        lightboxBackdrop.style.display = 'flex';
+        lightboxBackdrop.classList.add('show');
+      }
+      function closeLightbox() {
+        lightboxBackdrop.classList.remove('show');
+        setTimeout(() => {
+          lightboxBackdrop.style.display = 'none';
+          lightboxImage.src = '';
+        }, 160);
+      }
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightboxBackdrop.addEventListener('click', function(e){ if(e.target === lightboxBackdrop || e.target.id === 'lightboxContent') { closeLightbox(); }});
+
+      function populateFloatCard(obj){
+        floatTitle.textContent = `# ${obj["Action Item #"] || obj.Row || ''}`;
+        const dept = obj.Department || '';
+        const initDate = cleanDate(obj["Initiation Date"]) || '';
+        floatMeta.innerHTML = `${dept} | Initiated: <span>${initDate}</span>`;
+        refValue.textContent = obj.Reference || '';
+
+        const statusRaw = (obj.Status || '').toString().trim();
+        const isClosed = statusRaw.toLowerCase() === 'closed';
+        const isOpen = statusRaw.toLowerCase() === 'open';
+
+        floatCard.classList.remove('neon-open', 'neon-closed');
+        if(isClosed) { floatCard.classList.add('neon-closed'); }
+        else if (isOpen) { floatCard.classList.add('neon-open'); }
+
+        const imageUrl = obj.Image || obj["Image URL"] || obj["image"] || obj["imageUrl"] || "";
+        let imageHtml = '';
+        if(imageUrl && String(imageUrl).trim()){
+          imageHtml = `<div class="image-container-large"><img src="${imageUrl}" onclick="openLightbox('${imageUrl}')" alt="Evidence" /></div>`;
+        } else {
+          imageHtml = `<div class="image-container-large"><div class="no-image-text"><i class="bi bi-image" style="font-size:24px; display:block; margin-bottom:5px;"></i> Image not available</div></div>`;
+        }
+
+        const bodyHtml = `
+          <div class="desc-box">
+            <strong>Description</strong>
+            <div class="desc-content">${escapeHtml(obj.Description)}</div>
+          </div>
+          <div class="split-grid">
+            <div class="meta-left">
+              <div class="meta-card"><div class="field" style="margin:0;border:none;padding:0;"><strong>Action By</strong><div style="font-size:15px;font-weight:500;">${escapeHtml(obj["Action By"] || '-')}</div></div></div>
+              <div class="meta-card"><div class="field" style="margin:0;border:none;padding:0;"><strong>Responsible Person</strong><div style="font-size:15px;font-weight:500;">${escapeHtml(obj["Responsible Person"] || '-')}</div></div></div>
+            </div>
+            <div class="image-right">${imageHtml}</div>
+          </div>
+        `;
+        floatBody.innerHTML = bodyHtml;
+        
+        let badgeClass = 'status-other-badge';
+        if(isClosed) badgeClass = 'status-closed-badge';
+        else if(isOpen) badgeClass = 'status-open-badge';
+
+        let btnState = isClosed ? 'disabled' : '';
+        let btnText = isClosed ? 'Closed ✅' : 'Mark as Closed';
+        let btnStyle = isClosed ? 'background:#e9ecef;color:#555;border:1px solid #ddd;' : '';
+
+        const footerHTML = `
+           <div class="footer-group-left">
+             <div class="footer-item"><div class="footer-label">Target Date</div><div class="footer-value">${cleanDate(obj["Target Date"]) || '-'}</div></div>
+             <div class="footer-item"><div class="footer-label">Status</div><div class="footer-value"><span class="status-badge ${badgeClass}">${statusRaw}</span></div></div>
+           </div>
+           <div class="footer-btn-area"><button id="btnMarkClosedFooter" class="btn-mark-closed" ${btnState} style="${btnStyle}">${btnText}</button></div>
+        `;
+        floatFooter.innerHTML = footerHTML;
+
+        const btnFooter = document.getElementById('btnMarkClosedFooter');
+        if(btnFooter && !isClosed){
+            btnFooter.onclick = function() { handleMarkClosed(obj.Row); };
+        }
+      }
+
+      function updateNavVisibility(){
+        navPrev.style.display = (currentIndex > 0) ? 'flex' : 'none';
+        navNext.style.display = (currentIndex < filteredData.length - 1) ? 'flex' : 'none';
+      }
+
+      navPrev.addEventListener('click', function(e){ e.stopPropagation(); if(currentIndex > 0) openFloatCardByIndex(currentIndex - 1); });
+      navNext.addEventListener('click', function(e){ e.stopPropagation(); if(currentIndex < filteredData.length - 1) openFloatCardByIndex(currentIndex + 1); });
+
+      function closeFloatCard(){
+        floatCard.classList.add('hiding');
+        setTimeout(()=>{ floatBackdrop.classList.remove('show'); floatBackdrop.setAttribute('aria-hidden','true'); floatCard.setAttribute('aria-hidden','true'); floatCard.classList.remove('hiding'); }, 280);
+      }
+
+      floatClose.addEventListener('click', closeFloatCard);
+      floatBackdrop.addEventListener('click', function(e){ if(e.target === floatBackdrop) closeFloatCard(); });
+      document.addEventListener('keydown', function(e){ 
+        if(e.key==='Escape'){
+          if(lightboxBackdrop.classList.contains('show')){ closeLightbox(); } else if(floatBackdrop.classList.contains('show')){ closeFloatCard(); }
+        }
+        if(floatBackdrop.classList.contains('show') && !lightboxBackdrop.classList.contains('show')){
+          if(e.key==='ArrowLeft' && currentIndex > 0) openFloatCardByIndex(currentIndex - 1);
+          if(e.key==='ArrowRight' && currentIndex < filteredData.length - 1) openFloatCardByIndex(currentIndex + 1);
+        }
+      });
+
+      function escapeHtml(str){ if(!str) return ''; return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,'<br>'); }
+
+      async function handleMarkClosed(rowId){
+         const btn = document.getElementById('btnMarkClosedFooter');
+         if(btn) { btn.disabled = true; btn.textContent = 'Closing...'; btn.style.background = '#ffc107'; btn.style.color = '#000'; }
+         const idxFiltered = filteredData.findIndex(item => String(item.Row) === String(rowId));
+         const idxAll = allData.findIndex(item => String(item.Row) === String(rowId));
+         try{
+            const form = new URLSearchParams(); form.append('Row', rowId); form.append('Status', 'Closed'); form.append('Action','update');
+            fetch(SCRIPT_BASE_URL, { method:'POST', body: form });
+            if (idxAll >= 0) { allData[idxAll].Status = 'Closed'; }
+            if (idxFiltered >= 0) { filteredData[idxFiltered].Status = 'Closed'; }
+            updateTableRowStatusInDOM(rowId, 'Closed'); 
+            openFloatCardByIndex(idxFiltered);
+            updateStats(); 
+         } catch(err){
+            alert('Update trigger failed.');
+            if(btn) { btn.disabled = false; btn.textContent = 'Mark as Closed'; btn.style.background = '#d9534f'; btn.style.color = '#fff'; }
+         }
+      }
+
+      btnDownloadDoc.addEventListener('click', async () => {
+         if(currentIndex < 0 || currentIndex >= filteredData.length) return;
+         const obj = filteredData[currentIndex];
+         const originalIcon = btnDownloadDoc.innerHTML;
+         btnDownloadDoc.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
+         try {
+             const form = new URLSearchParams(); form.append('Action', 'generateDoc'); form.append('RowData', JSON.stringify(obj));
+             const res = await fetch(SCRIPT_BASE_URL, { method:'POST', body: form });
+             if (!res.ok) { throw new Error(`Network Error: ${res.status}`); }
+             const text = await res.text();
+             let resp; try { resp = JSON.parse(text); } catch (e) { throw new Error("Server Script Error"); }
+             if(resp && resp.success && resp.fileId) {
+                const link = document.createElement('a'); link.href = `https://docs.google.com/document/d/${resp.fileId}/export?format=docx`;
+                link.download = `Action_Item_${obj.Row}.docx`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+             } else { alert('Script Error: ' + (resp.message || 'Unknown error')); }
+         } catch(e) { alert('Failed: ' + e.message); } finally { btnDownloadDoc.innerHTML = originalIcon; }
+      });
+      
+      [filterDept, filterResp, filterRef, filterMonth, filterYear].forEach(el=>el.addEventListener('change', renderTable));
+      filterText.addEventListener('input', function(){ renderTable(); });
+      btnClear.addEventListener('click', function(){ filterDept.value=''; filterResp.value=''; filterRef.value=''; filterMonth.value=''; filterYear.value=''; filterText.value=''; applyStatusFilter('All'); populateFilters(); renderTable(); });
+      btnRefreshTop && btnRefreshTop.addEventListener('click', fetchData);
+      btnPrintTop && btnPrintTop.addEventListener('click', function(){
+        const activeTab = document.querySelector('table');
+        if(!activeTab){ alert('No table to print!'); return; }
+        const tableClone = activeTab.cloneNode(true);
+        tableClone.querySelectorAll('.desc-text').forEach(el => { el.style.display='block'; el.style.webkitLineClamp='unset'; el.style.maxHeight='none'; el.style.whiteSpace='normal'; });
+        const printWindow = window.open('','', 'width=900,height=700');
+        printWindow.document.write(`<html><head><title>Filtered View</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" /><style>table{border-collapse:collapse;width:100%} th,td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top} td.description div{white-space:normal!important}</style></head><body style="padding:20px;font-family:Arial;"><h4>Action Items Print View</h4>${tableClone.outerHTML}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+        printWindow.document.close(); printWindow.focus();
+      });
+      window.addEventListener('resize', updateLayoutOffsets);
+
+      /* ==========================================================================
+          ADD NEW ACTION ITEM
+          ========================================================================== */
+      const fabAdd = document.getElementById('fabAdd');
+      const addBackdrop = document.getElementById('addBackdrop');
+      const addCard = document.getElementById('addCard');
+      const addClose = document.getElementById('addClose');
+      const addForm = document.getElementById('addForm');
+      const btnSaveAddition = document.getElementById('btnSaveAddition');
+      const addImageInput = document.getElementById('addImageInput');
+      const addImagePreview = document.getElementById('addImagePreview');
+      const addImageClear = document.getElementById('addImageClear');
+      const uploadHintText = document.getElementById('uploadHintText');
+      const appToast = document.getElementById('appToast');
+      const appToastText = document.getElementById('appToastText');
+
+      let selectedImageDataUrl = '';
+
+      function showToast(message, isError){
+        appToastText.textContent = message;
+        appToast.classList.toggle('toast-error', !!isError);
+        const icon = appToast.querySelector('i');
+        icon.className = isError ? 'bi bi-exclamation-triangle-fill' : 'bi bi-check-circle-fill';
+        appToast.classList.add('show');
+        clearTimeout(appToast._hideTimer);
+        appToast._hideTimer = setTimeout(()=> appToast.classList.remove('show'), 3200);
+      }
+
+      function ddmmyyyy(isoDateStr){
+        if(!isoDateStr) return '';
+        const parts = isoDateStr.split('-'); // yyyy-mm-dd from <input type="date">
+        if(parts.length !== 3) return isoDateStr;
+        const [y, m, d] = parts;
+        return `${d}/${m}/${y}`;
+      }
+
+      function todayIso(){
+        const t = new Date();
+        const mm = String(t.getMonth()+1).padStart(2,'0');
+        const dd = String(t.getDate()).padStart(2,'0');
+        return `${t.getFullYear()}-${mm}-${dd}`;
+      }
+
+      function resetAddForm(){
+        addForm.reset();
+        selectedImageDataUrl = '';
+        addImagePreview.style.display = 'none';
+        addImagePreview.src = '';
+        addImageClear.style.display = 'none';
+        uploadHintText.textContent = 'Tap to attach a photo';
+        document.getElementById('addInitiationDate').value = todayIso();
+      }
+
+      function openAddCard(){
+        resetAddForm();
+        addBackdrop.classList.add('show');
+        addCard.classList.remove('hiding');
+        addBackdrop.setAttribute('aria-hidden','false');
+        addCard.setAttribute('aria-hidden','false');
+      }
+      function closeAddCard(){
+        addCard.classList.add('hiding');
+        setTimeout(()=>{
+          addBackdrop.classList.remove('show');
+          addBackdrop.setAttribute('aria-hidden','true');
+          addCard.setAttribute('aria-hidden','true');
+          addCard.classList.remove('hiding');
+        }, 280);
+      }
+
+      fabAdd.addEventListener('click', openAddCard);
+      addClose.addEventListener('click', closeAddCard);
+      addBackdrop.addEventListener('click', function(e){ if(e.target === addBackdrop) closeAddCard(); });
+
+      // Resize the chosen photo client-side (max 1280px wide) before converting to base64,
+      // so uploads stay small and quick on mobile connections.
+      function resizeImageFile(file){
+        return new Promise((resolve, reject)=>{
+          const img = new Image();
+          const reader = new FileReader();
+          reader.onload = (e) => { img.src = e.target.result; };
+          reader.onerror = reject;
+          img.onload = () => {
+            const maxDim = 1280;
+            let { width, height } = img;
+            if (width > maxDim || height > maxDim){
+              if (width > height){ height = Math.round(height * (maxDim/width)); width = maxDim; }
+              else { width = Math.round(width * (maxDim/height)); height = maxDim; }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.82));
+          };
+          img.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      addImageInput.addEventListener('change', async function(){
+        const file = addImageInput.files && addImageInput.files[0];
+        if(!file) return;
+        uploadHintText.textContent = 'Processing photo…';
+        try{
+          selectedImageDataUrl = await resizeImageFile(file);
+          addImagePreview.src = selectedImageDataUrl;
+          addImagePreview.style.display = 'block';
+          addImageClear.style.display = 'inline-block';
+          uploadHintText.textContent = file.name;
+        }catch(err){
+          console.error('Image processing failed', err);
+          selectedImageDataUrl = '';
+          uploadHintText.textContent = 'Could not read that photo — tap to try again';
+        }
+      });
+      addImageClear.addEventListener('click', function(e){
+        e.preventDefault(); e.stopPropagation();
+        addImageInput.value = '';
+        selectedImageDataUrl = '';
+        addImagePreview.style.display = 'none';
+        addImageClear.style.display = 'none';
+        uploadHintText.textContent = 'Tap to attach a photo';
+      });
+
+      btnSaveAddition.addEventListener('click', async function(){
+        const department = document.getElementById('addDepartment').value.trim();
+        const description = document.getElementById('addDescription').value.trim();
+        const reference = document.getElementById('addReference').value.trim();
+        const initiationDate = document.getElementById('addInitiationDate').value;
+        const targetDate = document.getElementById('addTargetDate').value;
+        const actionBy = document.getElementById('addActionBy').value.trim();
+        const responsiblePerson = document.getElementById('addResponsiblePerson').value.trim();
+
+        if(!department || !description || !reference || !initiationDate || !targetDate || !actionBy || !responsiblePerson){
+          if (typeof addForm.reportValidity === 'function') addForm.reportValidity();
+          showToast('Please fill in all required fields.', true);
+          return;
+        }
+
+        const originalBtnHtml = btnSaveAddition.innerHTML;
+        btnSaveAddition.disabled = true;
+        btnSaveAddition.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div> Saving…';
+
+        try{
+          const form = new URLSearchParams();
+          form.append('Action', 'create');
+          form.append('Department', department);
+          form.append('Description', description);
+          form.append('Reference', reference);
+          form.append('InitiationDate', ddmmyyyy(initiationDate));
+          form.append('TargetDate', ddmmyyyy(targetDate));
+          form.append('ActionBy', actionBy);
+          form.append('ResponsiblePerson', responsiblePerson);
+          form.append('Status', 'Open');
+          if (selectedImageDataUrl){
+            form.append('ImageData', selectedImageDataUrl);
+            form.append('ImageName', (addImageInput.files[0] && addImageInput.files[0].name) || 'photo.jpg');
+          }
+
+          const res = await fetch(SCRIPT_BASE_URL, { method:'POST', body: form });
+          if(!res.ok) throw new Error('Network Error: ' + res.status);
+          const text = await res.text();
+          let resp; try{ resp = JSON.parse(text); }catch(e){ throw new Error('Server Script Error'); }
+          if(!resp || !resp.success) throw new Error((resp && resp.message) || 'Unknown error');
+
+          closeAddCard();
+          showToast('Action item added successfully.');
+          await fetchData();
+        }catch(err){
+          console.error('Add item failed', err);
+          showToast('Could not save: ' + err.message, true);
+        }finally{
+          btnSaveAddition.disabled = false;
+          btnSaveAddition.innerHTML = originalBtnHtml;
+        }
+      });
+
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && addBackdrop.classList.contains('show')) closeAddCard();
+      });
+
+      /* ==========================================================================
+          LIGHTWEIGHT PWA SUPPORT — installable "Add to Home Screen"
+          (Built client-side via a Blob URL so it works no matter where this
+          file is hosted — no separate manifest.json file required.)
+          ========================================================================== */
+      (function setupWebManifest(){
+        try{
+          const manifest = {
+            name: 'Action Item Register',
+            short_name: 'AITR',
+            start_url: window.location.href,
+            scope: './',
+            display: 'standalone',
+            background_color: '#eef3fb',
+            theme_color: '#1a73e8',
+            icons: [
+              { src: 'data:image/png;base64,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', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+              { src: 'data:image/png;base64,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', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+            ]
+          };
+          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+          document.getElementById('webManifestLink').setAttribute('href', URL.createObjectURL(blob));
+        }catch(err){ console.warn('Web manifest setup skipped:', err); }
+      })();
+
+      document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+  </body>
+</html>
