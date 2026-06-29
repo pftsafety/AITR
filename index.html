@@ -214,7 +214,8 @@
         background:linear-gradient(90deg,var(--brand-500),#4dabf7);
         border-radius:2px; transition:opacity .35s ease; z-index:600;
       }
-      .table-wrap.loading #loaderBar{opacity:1; animation:progressBarAnim 1.8s infinite linear; }
+      .data-region{ position:relative; }
+      .table-wrap.loading #loaderBar, .data-region.loading #loaderBar{opacity:1; animation:progressBarAnim 1.8s infinite linear; }
       @keyframes progressBarAnim{ 0%{ left:0; width:0%; } 50%{ left:10%; width:75%; } 100%{ left:100%; width:0%; } }
 
       /* ==========================================================================
@@ -492,20 +493,152 @@
       .app-toast.show{ opacity:1; transform: translateX(-50%) translateY(0); pointer-events:auto; }
       .app-toast.toast-error{ background:#7a1f27; }
       .app-toast i{ font-size:16px; }
+
+      /* ==========================================================================
+          APP BAR (sticky branded header — replaces the plain toolbar row)
+          ========================================================================== */
+      .app-bar{
+        position: sticky; top: 0; z-index: 300;
+        background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+        padding-top: env(safe-area-inset-top);
+        box-shadow: 0 4px 16px rgba(11,43,74,0.18);
+      }
+      .app-bar-inner{
+        max-width: 1250px; margin: 0 auto;
+        padding: 12px 18px;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .app-bar-title{
+        display: flex; align-items: center; gap: 10px;
+        color: #fff; font-weight: 600; font-size: 16px; letter-spacing: 0.2px;
+      }
+      .app-bar-title i{ font-size: 19px; }
+      .app-bar-actions{ display: flex; gap: 8px; }
+      .icon-btn{
+        width: 36px; height: 36px; border-radius: 50%;
+        background: rgba(255,255,255,0.16); border: none; color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 15px; cursor: pointer; transition: background .15s ease;
+      }
+      .icon-btn:hover{ background: rgba(255,255,255,0.28); }
+      .icon-btn:active{ transform: scale(0.94); }
+
+      /* ==========================================================================
+          MOBILE FILTER TRIGGER + BOTTOM SHEET
+          (desktop keeps the original inline filter-bar; only the @media block
+           below repositions .filter-box into a bottom sheet)
+          ========================================================================== */
+      .mobile-filter-trigger{ display: none; gap: 10px; margin-bottom: 12px; }
+      .mobile-filter-trigger input{
+        flex: 1; height: 42px; border-radius: 10px; border: 1px solid #c8d3e6;
+        padding: 0 14px; font-size: 14px; font-family: "Poppins", sans-serif; background:#fff;
+      }
+      .filter-trigger-btn{
+        position: relative; width: 42px; height: 42px; border-radius: 10px;
+        background: var(--brand-500); color: #fff; border: none; font-size: 17px;
+        display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+      }
+      .filter-count-badge{
+        position: absolute; top: -6px; right: -6px;
+        background: #dc3545; color: #fff; font-size: 10px; font-weight: 700;
+        min-width: 18px; height: 18px; border-radius: 999px;
+        display: flex; align-items: center; justify-content: center; padding: 0 4px;
+        border: 2px solid #fff;
+      }
+      .sheet-handle{ display:none; }
+      .sheet-header{ display:none; }
+      .sheet-footer{ display:none; }
+
+      /* ==========================================================================
+          MOBILE CARD LIST (replaces the data table on narrow screens)
+          ========================================================================== */
+      .card-list-wrap{ display:none; padding: 4px 2px 4px; }
+      .item-card{
+        background:#fff; border:1px solid var(--muted-border); border-radius:14px;
+        padding:14px 16px; margin-bottom:10px;
+        box-shadow: 0 2px 10px rgba(9,30,66,0.05);
+        cursor:pointer; transition: transform .12s ease, box-shadow .12s ease;
+      }
+      .item-card:active{ transform: scale(0.985); box-shadow: 0 1px 4px rgba(9,30,66,0.08); }
+      .item-card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+      .item-dept{ font-weight:700; font-size:13.5px; color:var(--text-strong); }
+      .item-desc{
+        font-size:13px; color:#3c4a5e; line-height:1.4; margin-bottom:10px;
+        display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+      }
+      .item-card-meta{ display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color:var(--text-muted); margin-bottom:8px; }
+      .item-card-meta span{ display:inline-flex; align-items:center; gap:5px; }
+      .item-card-meta i{ font-size:12px; color:var(--brand-500); }
+      .item-card-foot{ display:flex; align-items:center; justify-content:space-between; padding-top:8px; border-top:1px solid #f0f2f5; }
+      .item-card-foot .person{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--text-strong); }
+      .item-card-foot .person i{ color:var(--brand-500); }
+      .item-card-foot .bi-chevron-right{ color:#aab4c2; font-size:14px; }
+      .card-list-empty{ text-align:center; color:var(--text-muted); font-size:13.5px; padding:40px 0; }
+
+      /* ==========================================================================
+          MOBILE BREAKPOINT — the actual "looks like an app, not a webpage" layer
+          ========================================================================== */
+      @media (max-width: 768px){
+        .container-main{ padding: 10px 10px calc(90px + env(safe-area-inset-bottom)) 10px; }
+
+        /* Compact 3-up stat tiles instead of full-height stacked cards */
+        .dash-grid{ grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+        .dash-card{ padding: 12px 10px; border-radius: 10px; }
+        .dash-card .lbl{ font-size: 8.5px; margin-bottom: 4px; }
+        .dash-card .val{ font-size: 22px; }
+        .dash-card .bg-icon{ font-size: 48px; right: -8px; bottom: -10px; }
+
+        /* Swap inline filter row for the compact search + filter-sheet trigger */
+        .mobile-filter-trigger{ display:flex; }
+
+        .filter-box{
+          position: fixed; left:0; right:0; bottom:0; z-index:850;
+          background:#fff; border-radius:18px 18px 0 0; border:none;
+          box-shadow: 0 -10px 40px rgba(0,0,0,0.25);
+          max-height: 82vh; overflow-y:auto;
+          padding: 8px 18px calc(18px + env(safe-area-inset-bottom)) 18px;
+          transform: translateY(110%); transition: transform .32s cubic-bezier(0.22,1,0.36,1);
+          display: block;
+        }
+        .filter-box.sheet-open{ transform: translateY(0); }
+        .sheet-handle{
+          display:block; width:40px; height:4px; border-radius:999px;
+          background:#dde5ed; margin: 6px auto 10px auto;
+        }
+        .sheet-header{
+          display:flex; align-items:center; justify-content:space-between;
+          font-weight:700; font-size:15px; color:var(--text-strong); margin-bottom:10px;
+        }
+        .sheet-header .float-close{ position:static; width:30px; height:30px; }
+        .filter-bar{ flex-direction:column; align-items:stretch; gap:10px; }
+        .filter-bar>*{ width:100%; max-width:100%; min-width:0; }
+        #activeChips{ flex-wrap:wrap; margin-top:8px; }
+        .sheet-footer{ display:block; margin-top:14px; }
+
+        /* Table → cards */
+        .table-wrap{ display:none; }
+        .card-list-wrap{ display:block; }
+
+        #lastUpdated{ padding-bottom: 6px; }
+      }
     </style>
   </head>
   <body>
 
-    <main class="container-main">
-      
-      <div class="d-flex justify-content-end gap-2 mb-3">
-        <button id="btnRefreshTop" class="btn-toolbar-custom" title="Refresh Data">
-          <i class="bi bi-arrow-clockwise text-primary"></i> Refresh
-        </button>
-        <button id="btnPrintTop" class="btn-toolbar-custom" title="Print Table">
-          <i class="bi bi-printer text-dark"></i> Print
-        </button>
+    <header class="app-bar">
+      <div class="app-bar-inner">
+        <div class="app-bar-title">
+          <i class="bi bi-clipboard2-check-fill"></i>
+          <span>Action Item Register</span>
+        </div>
+        <div class="app-bar-actions">
+          <button id="btnRefreshTop" class="icon-btn" title="Refresh Data"><i class="bi bi-arrow-clockwise"></i></button>
+          <button id="btnPrintTop" class="icon-btn" title="Print Table"><i class="bi bi-printer"></i></button>
+        </div>
       </div>
+    </header>
+
+    <main class="container-main">
 
       <div class="dash-grid">
         
@@ -532,7 +665,20 @@
       <div class="card-ui">
         <div class="card-inner">
           
+          <div class="mobile-filter-trigger">
+            <input id="filterTextMobile" class="form-control form-control-sm" placeholder="Search description or reference..." />
+            <button id="btnOpenFilterSheet" class="filter-trigger-btn" title="Filters">
+              <i class="bi bi-sliders"></i>
+              <span id="filterCountBadge" class="filter-count-badge" style="display:none">0</span>
+            </button>
+          </div>
+
           <div class="filter-box" id="filterBox">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+              <span>Filters</span>
+              <button class="float-close" id="filterSheetClose" aria-label="Close">&times;</button>
+            </div>
             <div class="filter-bar">
               <select id="filterDept" class="form-select form-select-sm"><option value="">All Departments</option></select>
               <select id="filterResp" class="form-select form-select-sm"><option value="">All Responsible Persons</option></select>
@@ -544,9 +690,13 @@
               <button id="btnClearFilters" class="btn btn-outline-secondary btn-sm" style="flex:0 0 auto">Clear</button>
             </div>
             <div class="d-flex align-items-center ms-3" id="activeChips"></div>
+            <div class="sheet-footer">
+              <button id="btnApplyFilterSheet" class="btn-save-addition">Show Results</button>
+            </div>
           </div>
+          <div class="float-card-backdrop" id="filterSheetBackdrop" aria-hidden="true"></div>
 
-          <div class="table-wrap mt-2" id="tableWrap" role="region" aria-live="polite">
+          <div class="data-region" id="dataRegion">
             <div id="loaderBar" aria-hidden="true"></div>
             <div id="loader" aria-hidden="false">
               <div style="display:flex;flex-direction:column;align-items:center;">
@@ -559,23 +709,28 @@
               </div>
             </div>
 
-            <table class="table align-middle table-hover" id="dataTable" aria-describedby="tableWrap">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Department</th>
-                  <th>Description</th>
-                  <th>Reference</th>
-                  <th>Initiation Date</th>
-                  <th>Target Date</th>
-                  <th>Action By</th>
-                  <th>Responsible Person</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody"></tbody>
-            </table>
+            <div class="table-wrap mt-2" id="tableWrap" role="region" aria-live="polite">
+              <table class="table align-middle table-hover" id="dataTable" aria-describedby="tableWrap">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Department</th>
+                    <th>Description</th>
+                    <th>Reference</th>
+                    <th>Initiation Date</th>
+                    <th>Target Date</th>
+                    <th>Action By</th>
+                    <th>Responsible Person</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="card-list-wrap" id="cardListWrap" role="region" aria-live="polite"></div>
           </div>
+
 
           <div id="lastUpdated"></div>
         </div>
@@ -722,6 +877,8 @@
       const btnPrintTop = document.getElementById('btnPrintTop');
       const loader = document.getElementById('loader');
       const tableWrap = document.getElementById('tableWrap');
+      const dataRegion = document.getElementById('dataRegion');
+      const cardListWrap = document.getElementById('cardListWrap');
       const lastUpdatedEl = document.getElementById('lastUpdated');
       const filterDept = document.getElementById('filterDept');
       const filterResp = document.getElementById('filterResp');
@@ -729,9 +886,18 @@
       const filterMonth = document.getElementById('filterMonth');
       const filterYear = document.getElementById('filterYear');
       const filterText = document.getElementById('filterText');
+      const filterTextMobile = document.getElementById('filterTextMobile');
       const btnClear = document.getElementById('btnClearFilters');
       const activeChips = document.getElementById('activeChips');
       const loaderBar = document.getElementById('loaderBar');
+
+      // mobile filter-sheet refs
+      const filterBox = document.getElementById('filterBox');
+      const btnOpenFilterSheet = document.getElementById('btnOpenFilterSheet');
+      const filterSheetClose = document.getElementById('filterSheetClose');
+      const filterSheetBackdrop = document.getElementById('filterSheetBackdrop');
+      const btnApplyFilterSheet = document.getElementById('btnApplyFilterSheet');
+      const filterCountBadge = document.getElementById('filterCountBadge');
 
       // popup refs
       const floatBackdrop = document.getElementById('floatBackdrop');
@@ -836,16 +1002,16 @@
       }
 
       function showProgressBar(){
-        if(!tableWrap) return;
-        tableWrap.classList.add('loading');
+        if(!dataRegion) return;
+        dataRegion.classList.add('loading');
         loaderBar.style.opacity = '1';
         loaderBar.style.width = '0%';
       }
       function hideProgressBar(){
-        if(!tableWrap) return;
+        if(!dataRegion) return;
         loaderBar.style.width = '100%';
         setTimeout(()=>{
-          tableWrap.classList.remove('loading');
+          dataRegion.classList.remove('loading');
           loaderBar.style.opacity = '0';
           loaderBar.style.width = '0%';
         }, 420);
@@ -857,9 +1023,13 @@
       // Updated Layout for NO HEADER
       function updateLayoutOffsets(){
         const filter = document.getElementById('filterBox');
-        const filterHeight = filter ? filter.getBoundingClientRect().height : 64;
-        const offset = 10; // Simple small offset
-        if (filter) filter.style.top = offset + 'px';
+        const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+        if (isDesktop) {
+          const offset = 10; // Simple small offset
+          if (filter) filter.style.top = offset + 'px';
+        } else if (filter) {
+          filter.style.top = ''; // mobile uses the fixed bottom-sheet position from CSS, not top
+        }
         const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
         // Space needed = Dashboard + Toolbar + Filter + Padding
         const used = 290; 
@@ -969,7 +1139,7 @@
           el.innerHTML = `${k}: ${v} <span style="opacity:.7;margin-left:8px;cursor:pointer;font-weight:600">✕</span>`;
           el.addEventListener('click', ()=>{ 
             if(k==='Status') { applyStatusFilter('All'); return; }
-            if(k==='Department') filterDept.value=''; if(k==='Person') filterResp.value=''; if(k==='Reference') filterRef.value=''; if(k==='Month') filterMonth.value=''; if(k==='Year') filterYear.value=''; if(k==='Search') filterText.value=''; populateFilters(); renderTable(); 
+            if(k==='Department') filterDept.value=''; if(k==='Person') filterResp.value=''; if(k==='Reference') filterRef.value=''; if(k==='Month') filterMonth.value=''; if(k==='Year') filterYear.value=''; if(k==='Search'){ filterText.value=''; if(filterTextMobile) filterTextMobile.value=''; } populateFilters(); renderTable(); 
           });
           activeChips.appendChild(el);
         });
@@ -1049,6 +1219,68 @@
 
         tableBody.innerHTML = filteredData.length ? filteredData.map(createRow).join('') : `<tr><td colspan="9" class="text-muted text-center">No matching records</td></tr>`;
         attachRowClickHandlers();
+
+        const createCard = (r) => {
+          const statusRaw = (r.Status || '').toString().trim();
+          const statusLower = statusRaw.toLowerCase();
+          let badgeClass = 'status-other-badge';
+          if(statusLower==='closed'){ badgeClass='status-closed-badge'; }
+          else if(statusLower==='open') { badgeClass='status-open-badge'; }
+          const statusDisplay = `<div class="status-badge ${badgeClass}">${statusRaw}</div>`;
+          const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+          const targetDate = cleanDate(r["Target Date"]) || "";
+
+          return `<div class="item-card" data-row="${r.Row || ''}" data-json='${encodeURIComponent(JSON.stringify(r))}'>
+            <div class="item-card-top">
+              <span class="item-dept">${(r.Department || "")}</span>
+              ${statusDisplay}
+            </div>
+            <div class="item-desc">${desc}</div>
+            <div class="item-card-meta">
+              <span><i class="bi bi-bookmark"></i>${r.Reference || "—"}</span>
+              <span><i class="bi bi-calendar-event"></i>${targetDate}</span>
+            </div>
+            <div class="item-card-foot">
+              <span class="person"><i class="bi bi-person-fill"></i>${r["Responsible Person"] || "—"}</span>
+              <i class="bi bi-chevron-right"></i>
+            </div>
+          </div>`;
+        };
+
+        if (cardListWrap) {
+          cardListWrap.innerHTML = filteredData.length ? filteredData.map(createCard).join('') : `<div class="card-list-empty">No matching records</div>`;
+          attachCardClickHandlers();
+        }
+
+        updateFilterCountBadge();
+      }
+
+      function attachCardClickHandlers(){
+        document.querySelectorAll('#cardListWrap .item-card').forEach((el)=>{
+          if(el._clickHandler) el.removeEventListener('click', el._clickHandler);
+        });
+        document.querySelectorAll('#cardListWrap .item-card').forEach((el)=>{
+          el._clickHandler = function(){
+            const json = el.getAttribute('data-json');
+            if(!json) return;
+            const obj = JSON.parse(decodeURIComponent(json));
+            currentIndex = filteredData.findIndex(item => String(item.Row) === String(obj.Row));
+            openFloatCardByIndex(currentIndex);
+          };
+          el.addEventListener('click', el._clickHandler);
+        });
+      }
+
+      function updateFilterCountBadge(){
+        if(!filterCountBadge) return;
+        const count = [filterDept.value, filterResp.value, filterRef.value, filterMonth.value, filterYear.value, filterText.value]
+          .filter(v => v && String(v).trim() !== '').length;
+        if (count > 0) {
+          filterCountBadge.textContent = count;
+          filterCountBadge.style.display = 'flex';
+        } else {
+          filterCountBadge.style.display = 'none';
+        }
       }
 
       function updateStats(){
@@ -1238,8 +1470,33 @@
       });
       
       [filterDept, filterResp, filterRef, filterMonth, filterYear].forEach(el=>el.addEventListener('change', renderTable));
-      filterText.addEventListener('input', function(){ renderTable(); });
-      btnClear.addEventListener('click', function(){ filterDept.value=''; filterResp.value=''; filterRef.value=''; filterMonth.value=''; filterYear.value=''; filterText.value=''; applyStatusFilter('All'); populateFilters(); renderTable(); });
+      filterText.addEventListener('input', function(){ if(filterTextMobile) filterTextMobile.value = filterText.value; renderTable(); });
+      btnClear.addEventListener('click', function(){ filterDept.value=''; filterResp.value=''; filterRef.value=''; filterMonth.value=''; filterYear.value=''; filterText.value=''; if(filterTextMobile) filterTextMobile.value=''; applyStatusFilter('All'); populateFilters(); renderTable(); });
+
+      /* ==========================================================================
+          MOBILE FILTER BOTTOM SHEET
+          ========================================================================== */
+      function openFilterSheet(){
+        filterBox.classList.add('sheet-open');
+        filterSheetBackdrop.classList.add('show');
+        filterSheetBackdrop.setAttribute('aria-hidden','false');
+      }
+      function closeFilterSheet(){
+        filterBox.classList.remove('sheet-open');
+        filterSheetBackdrop.classList.remove('show');
+        filterSheetBackdrop.setAttribute('aria-hidden','true');
+      }
+      if (btnOpenFilterSheet) btnOpenFilterSheet.addEventListener('click', openFilterSheet);
+      if (filterSheetClose) filterSheetClose.addEventListener('click', closeFilterSheet);
+      if (filterSheetBackdrop) filterSheetBackdrop.addEventListener('click', closeFilterSheet);
+      if (btnApplyFilterSheet) btnApplyFilterSheet.addEventListener('click', closeFilterSheet);
+
+      if (filterTextMobile) {
+        filterTextMobile.addEventListener('input', function(){
+          filterText.value = filterTextMobile.value;
+          renderTable();
+        });
+      }
       btnRefreshTop && btnRefreshTop.addEventListener('click', fetchData);
       btnPrintTop && btnPrintTop.addEventListener('click', function(){
         const activeTab = document.querySelector('table');
@@ -1457,6 +1714,18 @@
           document.getElementById('webManifestLink').setAttribute('href', URL.createObjectURL(blob));
         }catch(err){ console.warn('Web manifest setup skipped:', err); }
       })();
+
+      /* ==========================================================================
+          SERVICE WORKER — real offline shell + "Install app" support
+          (Reliable now that this file lives on a stable static host instead of
+          Apps Script's own redirecting URLs.)
+          ========================================================================== */
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .catch(err => console.warn('Service worker registration failed:', err));
+        });
+      }
 
       document.addEventListener('DOMContentLoaded', fetchData);
     </script>
