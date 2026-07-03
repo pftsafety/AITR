@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <title>Action Item Tracking Register — v18</title>
+    <title>Action Item Register — v18</title>
 
     <!-- ===== PWA / "Add to Home Screen" support ===== -->
     <meta name="theme-color" content="#121316" />
@@ -47,6 +47,8 @@
         --status-closed-text: #1F6B3C;
         --status-other-bg: #EBEAE5;
         --status-other-text: #54565A;
+        --status-stale-bg: #F5DFAF;
+        --status-stale-text: #6B4400;
 
         --success-500: #1F6B3C;
         --success-600: #195A32;
@@ -81,7 +83,7 @@
          ========================================= */
       .dash-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 14px;
         margin-bottom: 22px;
       }
@@ -116,6 +118,10 @@
       .dash-card.card-blue .lbl { color: var(--text-muted); }
       .dash-card.card-blue .val { color: var(--ink); }
       .dash-card.card-blue .bg-icon { color: var(--brand-500); }
+
+      .dash-card.card-amber { border-top-color: var(--status-open-text); }
+      .dash-card.card-amber .val { color: var(--status-open-text); }
+      .dash-card.card-amber .bg-icon { color: var(--status-open-text); }
 
       .dash-card.card-red { border-top-color: var(--danger-500); }
       .dash-card.card-red .val { color: var(--danger-500); }
@@ -231,6 +237,19 @@
       .status-open-badge { background: var(--status-open-bg); color: var(--status-open-text); }
       .status-closed-badge { background: var(--status-closed-bg); color: var(--status-closed-text); }
       .status-other-badge { background: var(--status-other-bg); color: var(--status-other-text); }
+      .status-overdue-badge { background: var(--danger-500); color: #fff; }
+
+      /* AGING / OVERDUE INDICATOR — used in table rows, mobile cards, and the drawer */
+      .aging-chip{
+        display:inline-flex; align-items:center; gap:4px;
+        font-size:11px; font-weight:700; padding:2px 7px; border-radius:5px;
+        white-space:nowrap;
+      }
+      .aging-chip i{ font-size:10.5px; }
+      .aging-chip.level-fresh{ color: var(--text-muted); background: var(--status-other-bg); }
+      .aging-chip.level-aging{ color: var(--status-open-text); background: var(--status-open-bg); }
+      .aging-chip.level-stale{ color: var(--status-stale-text); background: var(--status-stale-bg); }
+      .aging-chip.level-overdue{ color: #fff; background: var(--danger-500); }
 
       #loaderBar{
         position:absolute; top:0; left:0; height:4px; width:0%;
@@ -271,8 +290,12 @@
 
       /* NEON EFFECTS */
       .float-card.neon-open {
-        box-shadow: -4px 0 25px rgba(220, 53, 69, 0.4), inset 4px 0 10px rgba(220, 53, 69, 0.05);
-        border-left: 3px solid #dc3545;
+        box-shadow: -4px 0 25px rgba(217, 172, 10, 0.35), inset 4px 0 10px rgba(217, 172, 10, 0.05);
+        border-left: 3px solid var(--accent-600);
+      }
+      .float-card.neon-overdue {
+        box-shadow: -4px 0 25px rgba(178, 58, 46, 0.4), inset 4px 0 10px rgba(178, 58, 46, 0.05);
+        border-left: 3px solid var(--danger-500);
       }
       .float-card.neon-closed {
         box-shadow: -4px 0 25px rgba(25, 135, 84, 0.4), inset 4px 0 10px rgba(25, 135, 84, 0.05);
@@ -445,7 +468,7 @@
       }
 
       #lastUpdated{ text-align:right; color:var(--text-muted); font-size:12.5px; margin-top:8px; }
-      #loader{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,252,255,0.95)); z-index:220; transition:opacity .22s ease; }
+      #loader{ position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:center; padding-top:8px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,252,255,0.95)); z-index:220; transition:opacity .22s ease; }
       #loader.hidden{ opacity:0; pointer-events:none; }
 
       /* ==========================================================================
@@ -627,6 +650,62 @@
       .item-card.accent-open{ border-left-color: var(--accent-500); }
       .item-card.accent-closed{ border-left-color: var(--success-500); }
       .item-card.accent-other{ border-left-color: #A8A6A0; }
+      .item-card.accent-overdue{ border-left-color: var(--danger-500); }
+
+      /* ==========================================================================
+          DEPARTMENT BREAKDOWN CHART — bar-list of open/overdue items per department
+          ========================================================================== */
+      .dept-chart-card{ margin-bottom: 18px; }
+      .dept-chart-header{
+        display:flex; align-items:center; gap:9px;
+        font-family: var(--font-display); font-weight:700; font-size:15.5px;
+        color: var(--ink); text-transform: uppercase; letter-spacing:0.3px;
+        margin-bottom: 14px;
+      }
+      .dept-chart-header i{ color: var(--brand-500); font-size:15px; }
+      .dept-chart-body{ display:flex; flex-direction:column; gap:11px; }
+      .dept-bar-row{
+        display:grid; grid-template-columns: 108px 1fr 30px; align-items:center; gap:10px;
+        cursor:pointer;
+      }
+      .dept-bar-label{
+        font-size:12.5px; font-weight:600; color: var(--text-strong);
+        overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      }
+      .dept-bar-track{ background: var(--status-other-bg); border-radius:5px; height:9px; overflow:hidden; }
+      .dept-bar-fill{ height:100%; border-radius:5px; transition: width .5s ease; }
+      .dept-bar-fill.fill-open{ background: var(--accent-500); }
+      .dept-bar-fill.fill-overdue{ background: var(--danger-500); }
+      .dept-bar-count{ font-family: var(--font-mono); font-size:12.5px; font-weight:600; color: var(--text-strong); text-align:right; }
+      .dept-chart-empty{ color: var(--text-muted); font-size:13px; padding: 6px 0; }
+      .dept-chart-toggle{
+        margin-top:2px; align-self:flex-start; background:none; border:none;
+        color: var(--brand-500); font-size:12.5px; font-weight:600; cursor:pointer; padding:0;
+      }
+      .dept-chart-toggle:hover{ text-decoration:underline; }
+      @media (max-width:480px){ .dept-bar-row{ grid-template-columns: 84px 1fr 26px; } }
+
+      /* ==========================================================================
+          PULL TO REFRESH (mobile only)
+          ========================================================================== */
+      .pull-refresh-indicator{
+        position: fixed; left:50%; top:0; margin-top:66px;
+        transform: translate(-50%, -100%);
+        width:38px; height:38px; border-radius:50%;
+        background:#fff; box-shadow:0 2px 12px rgba(0,0,0,0.18);
+        display:flex; align-items:center; justify-content:center;
+        z-index:280;
+      }
+      .pull-refresh-indicator.visible{ transition:none; }
+      .pull-refresh-indicator:not(.visible){ transition: transform .25s ease; }
+      .pull-refresh-spinner{
+        width:18px; height:18px; border-radius:50%;
+        border:3px solid var(--muted-border); border-top-color: var(--brand-500);
+      }
+      .pull-refresh-indicator.ready .pull-refresh-spinner{ border-top-color: var(--accent-500); }
+      .pull-refresh-indicator.loading .pull-refresh-spinner{ animation: pullSpin 0.7s linear infinite; }
+      @keyframes pullSpin{ to{ transform: rotate(360deg); } }
+      @media (min-width:769px){ .pull-refresh-indicator{ display:none; } }
       .item-card:active{ transform: scale(0.985); box-shadow: 0 1px 4px rgba(9,30,66,0.08); }
       .item-card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
       .item-dept{ font-family: var(--font-display); font-weight:600; font-size:13.5px; color:var(--ink); }
@@ -655,7 +734,31 @@
       .item-card-foot .person{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--text-strong); }
       .item-card-foot .person i{ color:var(--brand-500); }
       .item-card-foot .bi-chevron-right{ color:#A8A6A0; font-size:14px; }
-      .card-list-empty{ text-align:center; color:var(--text-muted); font-size:13.5px; padding:40px 0; }
+      .card-list-empty{ text-align:center; color:var(--text-muted); font-size:13.5px; padding:40px 20px; }
+      .card-list-empty i{ font-size:30px; display:block; margin-bottom:12px; opacity:0.4; }
+      .card-list-empty .clear-filters-link{ display:inline-block; margin-top:10px; color: var(--brand-500); font-weight:600; font-size:12.5px; cursor:pointer; }
+      .card-list-empty .clear-filters-link:hover{ text-decoration:underline; }
+
+      /* ==========================================================================
+          SKELETON LOADING — replaces the generic spinner with placeholder cards
+          that mimic the eventual layout, for better perceived performance
+          ========================================================================== */
+      .skeleton-list{ display:flex; flex-direction:column; gap:10px; width:100%; max-width:640px; padding:0 4px; }
+      .skeleton-card{
+        background:#fff; border:1px solid var(--muted-border); border-radius:12px;
+        padding:14px 16px; border-left:4px solid var(--muted-border);
+      }
+      .skeleton-line{
+        height:11px; border-radius:5px; margin-bottom:10px;
+        background: linear-gradient(90deg, #ECEBE6 25%, #F5F4EF 37%, #ECEBE6 63%);
+        background-size: 400% 100%;
+        animation: skeletonShimmer 1.4s ease infinite;
+      }
+      .skeleton-line.w-40{ width:40%; }
+      .skeleton-line.w-90{ width:90%; }
+      .skeleton-line.w-60{ width:60%; }
+      .skeleton-line.w-30{ height:9px; margin-bottom:0; }
+      @keyframes skeletonShimmer{ 0%{ background-position: 100% 50%; } 100%{ background-position: 0 50%; } }
 
       /* ==========================================================================
           MOBILE BREAKPOINT — the actual "looks like an app, not a webpage" layer
@@ -663,8 +766,8 @@
       @media (max-width: 768px){
         .container-main{ padding: 10px 10px calc(90px + env(safe-area-inset-bottom)) 10px; }
 
-        /* Compact 3-up stat tiles instead of full-height stacked cards */
-        .dash-grid{ grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+        /* Compact 2x2 stat tiles instead of full-height stacked cards */
+        .dash-grid{ grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
         .dash-card{ padding: 12px 10px; border-radius: 10px; }
         .dash-card .lbl{ font-size: 8.5px; margin-bottom: 4px; }
         .dash-card .val{ font-size: 22px; }
@@ -711,7 +814,7 @@
       <div class="app-bar-inner">
         <div class="app-bar-title">
           <i class="bi bi-clipboard2-check-fill"></i>
-          <span>Action Item Tracking Register</span>
+          <span>Action Item Register</span>
         </div>
         <div class="app-bar-actions">
           <button id="btnRefreshTop" class="icon-btn" title="Refresh Data"><i class="bi bi-arrow-clockwise"></i></button>
@@ -719,6 +822,10 @@
         </div>
       </div>
     </header>
+
+    <div class="pull-refresh-indicator" id="pullRefreshIndicator" aria-hidden="true">
+      <div class="pull-refresh-spinner"></div>
+    </div>
 
     <main class="container-main">
 
@@ -730,10 +837,16 @@
           <i class="bi bi-folder2-open bg-icon"></i>
         </div>
 
-        <div class="dash-card card-red" id="cardOpen" onclick="applyStatusFilter('Open')">
+        <div class="dash-card card-amber" id="cardOpen" onclick="applyStatusFilter('Open')">
           <div class="lbl">Open Actions</div>
           <div class="val" id="statOpen">0</div>
-          <i class="bi bi-exclamation-triangle bg-icon"></i>
+          <i class="bi bi-hourglass-split bg-icon"></i>
+        </div>
+
+        <div class="dash-card card-red" id="cardOverdue" onclick="applyStatusFilter('Overdue')">
+          <div class="lbl">Overdue</div>
+          <div class="val" id="statOverdue">0</div>
+          <i class="bi bi-exclamation-triangle-fill bg-icon"></i>
         </div>
 
         <div class="dash-card card-green" id="cardClosed" onclick="applyStatusFilter('Closed')">
@@ -742,6 +855,16 @@
           <i class="bi bi-check-circle bg-icon"></i>
         </div>
 
+      </div>
+
+      <div class="card-ui dept-chart-card" id="deptChartCard">
+        <div class="card-inner">
+          <div class="dept-chart-header">
+            <i class="bi bi-bar-chart-line-fill"></i>
+            <span>Open Items by Department</span>
+          </div>
+          <div class="dept-chart-body" id="deptChartBody"></div>
+        </div>
       </div>
 
       <div class="card-ui">
@@ -781,13 +904,10 @@
           <div class="data-region" id="dataRegion">
             <div id="loaderBar" aria-hidden="true"></div>
             <div id="loader" aria-hidden="false">
-              <div style="display:flex;flex-direction:column;align-items:center;">
-                <div style="display:flex;align-items:center;">
-                  <span style="width:10px;height:10px;border-radius:999px;background:var(--brand-500);display:inline-block;margin:0 6px;opacity:.6"></span>
-                  <span style="width:10px;height:10px;border-radius:999px;background:var(--brand-500);display:inline-block;margin:0 6px;opacity:.6"></span>
-                  <span style="width:10px;height:10px;border-radius:999px;background:var(--brand-500);display:inline-block;margin:0 6px;opacity:.6"></span>
-                </div>
-                <div style="margin-top:10px;font-size:13px;color:var(--text-muted)">Loading data…</div>
+              <div class="skeleton-list">
+                <div class="skeleton-card"><div class="skeleton-line w-40"></div><div class="skeleton-line w-90"></div><div class="skeleton-line w-60"></div><div class="skeleton-line w-30"></div></div>
+                <div class="skeleton-card"><div class="skeleton-line w-40"></div><div class="skeleton-line w-90"></div><div class="skeleton-line w-60"></div><div class="skeleton-line w-30"></div></div>
+                <div class="skeleton-card"><div class="skeleton-line w-40"></div><div class="skeleton-line w-90"></div><div class="skeleton-line w-60"></div><div class="skeleton-line w-30"></div></div>
               </div>
             </div>
 
@@ -948,10 +1068,12 @@
       const tableBody = document.getElementById('tableBody');
       const statTotalEl = document.getElementById('statTotal');
       const statOpenEl = document.getElementById('statOpen');
+      const statOverdueEl = document.getElementById('statOverdue');
       const statClosedEl = document.getElementById('statClosed');
       
       const cardTotal = document.getElementById('cardTotal');
       const cardOpen = document.getElementById('cardOpen');
+      const cardOverdue = document.getElementById('cardOverdue');
       const cardClosed = document.getElementById('cardClosed');
 
       const btnRefreshTop = document.getElementById('btnRefreshTop');
@@ -1001,7 +1123,7 @@
       let allData = [];
       let filteredData = [];
       let currentIndex = -1;
-      let activeStatusFilter = 'All'; // 'All', 'Open', 'Closed'
+      let activeStatusFilter = 'All'; // 'All', 'Open', 'Overdue', 'Closed'
 
       function animateCount(el, newVal, duration = 600){
         const start = Number(el.textContent) || 0;
@@ -1056,11 +1178,64 @@
         return '';
       }
 
+      /* ==========================================================================
+          OVERDUE + AGING LOGIC
+          "Overdue" = Status is Open AND Target Date has passed.
+          "Days open" = days since Initiation Date, shown on open (non-closed) items,
+          escalating through fresh -> aging -> stale tiers the longer it sits.
+          ========================================================================== */
+      function getComputedStatus(r){
+        const statusRaw = (r.Status || '').toString().trim();
+        const statusLower = statusRaw.toLowerCase();
+        if (statusLower === 'closed') return 'Closed';
+        if (statusLower === 'open') {
+          const aging = getAgingInfo(r);
+          if (aging && aging.level === 'overdue') return 'Overdue';
+          return 'Open';
+        }
+        return statusRaw || 'Other';
+      }
+
+      function getAgingInfo(r){
+        const statusLower = (r.Status || '').toString().trim().toLowerCase();
+        if (statusLower === 'closed') return null;
+
+        const initIso = dateHelper(r["Initiation Date"]);
+        const targetIso = dateHelper(r["Target Date"]);
+        const today = new Date(todayIso() + 'T00:00:00');
+
+        if (targetIso) {
+          const targetDate = new Date(targetIso + 'T00:00:00');
+          const overdueDays = Math.round((today - targetDate) / 86400000);
+          if (overdueDays > 0) {
+            return {
+              level: 'overdue', days: overdueDays,
+              label: `Overdue by ${overdueDays} day${overdueDays===1?'':'s'}`,
+              shortLabel: `${overdueDays}d overdue`
+            };
+          }
+        }
+        if (initIso) {
+          const initDate = new Date(initIso + 'T00:00:00');
+          const daysOpen = Math.round((today - initDate) / 86400000);
+          if (daysOpen >= 0) {
+            const level = daysOpen >= 14 ? 'stale' : (daysOpen >= 7 ? 'aging' : 'fresh');
+            return {
+              level, days: daysOpen,
+              label: `${daysOpen} day${daysOpen===1?'':'s'} open`,
+              shortLabel: `${daysOpen}d open`
+            };
+          }
+        }
+        return null;
+      }
+
       function getStatusBadgeHtml(statusRaw) {
           const statusLower = statusRaw.toLowerCase();
           let badgeClass = 'status-other-badge';
           if(statusLower==='closed'){ badgeClass='status-closed-badge'; }
           else if(statusLower==='open') { badgeClass='status-open-badge'; }
+          else if(statusLower==='overdue') { badgeClass='status-overdue-badge'; }
           return `<div class="status-badge ${badgeClass}">${statusRaw}</div>`;
       }
 
@@ -1162,10 +1337,11 @@
 
           populateFilters();
           renderTable();
+          renderDeptChart();
         }catch(err){
           console.error('Fetch error', err);
           tableBody.innerHTML = `<tr><td colspan="9" class="text-danger text-center">Failed to load data. Check Apps Script & permissions.</td></tr>`;
-          animateCount(statTotalEl,0); animateCount(statOpenEl,0); animateCount(statClosedEl,0);
+          animateCount(statTotalEl,0); animateCount(statOpenEl,0); animateCount(statOverdueEl,0); animateCount(statClosedEl,0);
         }finally{
           const tbl = document.getElementById('dataTable'); if(tbl){ tbl.classList.add('table-fade'); setTimeout(()=> tbl.classList.add('show'),40); }
           hideLoader();
@@ -1230,10 +1406,12 @@
         activeStatusFilter = status;
         cardTotal.classList.remove('active-filter');
         cardOpen.classList.remove('active-filter');
+        cardOverdue.classList.remove('active-filter');
         cardClosed.classList.remove('active-filter');
         
         if(status === 'All') cardTotal.classList.add('active-filter');
         if(status === 'Open') cardOpen.classList.add('active-filter');
+        if(status === 'Overdue') cardOverdue.classList.add('active-filter');
         if(status === 'Closed') cardClosed.classList.add('active-filter');
 
         renderTable();
@@ -1244,9 +1422,11 @@
 
         // 1. Apply Status Filter from Dashboard Cards
         if (activeStatusFilter === 'Open') {
-          data = data.filter(r => (r.Status || '').toString().trim().toLowerCase() === 'open');
+          data = data.filter(r => getComputedStatus(r) === 'Open');
+        } else if (activeStatusFilter === 'Overdue') {
+          data = data.filter(r => getComputedStatus(r) === 'Overdue');
         } else if (activeStatusFilter === 'Closed') {
-          data = data.filter(r => (r.Status || '').toString().trim().toLowerCase() === 'closed');
+          data = data.filter(r => getComputedStatus(r) === 'Closed');
         }
 
         // 2. Apply Dropdown Filters
@@ -1273,19 +1453,15 @@
         updateStats();
 
         const createRow = (r) => {
-          const statusRaw = (r.Status || '').toString().trim();
-          const statusLower = statusRaw.toLowerCase();
-          let statusClass=''; 
-          let badgeClass = 'status-other-badge';
-          if(statusLower==='closed'){ statusClass=''; badgeClass='status-closed-badge'; }
-          else if(statusLower==='open') { statusClass=''; badgeClass='status-open-badge'; }
-
-          const statusDisplay = `<div class="status-badge ${badgeClass}">${statusRaw}</div>`;
+          const computedStatus = getComputedStatus(r);
+          const statusDisplay = getStatusBadgeHtml(computedStatus);
+          const aging = getAgingInfo(r);
+          const agingSub = aging ? `<div class="aging-chip level-${aging.level}" style="margin-top:4px;">${aging.shortLabel}</div>` : '';
           const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
           const initiationDate = cleanDate(r["Initiation Date"]) || "";
           const targetDate = cleanDate(r["Target Date"]) || "";
 
-          return `<tr class="${statusClass}" data-row="${r.Row || ''}" data-json='${encodeURIComponent(JSON.stringify(r))}'>
+          return `<tr data-row="${r.Row || ''}" data-json='${encodeURIComponent(JSON.stringify(r))}'>
             <td class="cell-mono">${r.Row || ""}</td>
             <td>${(r.Department || "")}</td>
             <td class="description" data-desc="${desc}" data-slno="${r.Row || ''}" data-dept="${r.Department || ''}" tabindex="0" aria-label="Description"><div class="desc-text">${desc}</div></td>
@@ -1294,25 +1470,28 @@
             <td class="cell-mono">${targetDate}</td>
             <td>${r["Action By"] || ""}</td>
             <td>${r["Responsible Person"] || ""}</td>
-            <td class="status-col">${statusDisplay}</td>
+            <td class="status-col">${statusDisplay}${agingSub}</td>
           </tr>`;
         };
 
-        tableBody.innerHTML = filteredData.length ? filteredData.map(createRow).join('') : `<tr><td colspan="9" class="text-muted text-center">No matching records</td></tr>`;
+        const emptyMsg = getEmptyStateMessage();
+        tableBody.innerHTML = filteredData.length ? filteredData.map(createRow).join('') : `<tr><td colspan="9" class="text-muted text-center"><i class="bi ${emptyMsg.icon}" style="font-size:18px;display:block;margin-bottom:6px;opacity:0.5;"></i>${emptyMsg.text}</td></tr>`;
         attachRowClickHandlers();
 
         const createCard = (r) => {
-          const statusRaw = (r.Status || '').toString().trim();
-          const statusLower = statusRaw.toLowerCase();
+          const computedStatus = getComputedStatus(r);
           let badgeClass = 'status-other-badge';
           let accentClass = 'accent-other';
-          if(statusLower==='closed'){ badgeClass='status-closed-badge'; accentClass='accent-closed'; }
-          else if(statusLower==='open') { badgeClass='status-open-badge'; accentClass='accent-open'; }
-          const statusDisplay = `<div class="status-badge ${badgeClass}">${statusRaw}</div>`;
+          if(computedStatus==='Closed'){ badgeClass='status-closed-badge'; accentClass='accent-closed'; }
+          else if(computedStatus==='Open') { badgeClass='status-open-badge'; accentClass='accent-open'; }
+          else if(computedStatus==='Overdue') { badgeClass='status-overdue-badge'; accentClass='accent-overdue'; }
+          const statusDisplay = `<div class="status-badge ${badgeClass}">${computedStatus}</div>`;
           const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
           const initiationDate = cleanDate(r["Initiation Date"]) || "";
           const photoCount = String(r.Image || '').split(',').map(s => s.trim()).filter(Boolean).length;
           const photoBadge = photoCount > 0 ? `<span class="photo-count"><i class="bi bi-camera-fill"></i>${photoCount > 1 ? photoCount : ''}</span>` : '';
+          const aging = getAgingInfo(r);
+          const agingChip = aging ? `<span class="aging-chip level-${aging.level}"><i class="bi bi-clock-history"></i>${aging.label}</span>` : '';
 
           return `<div class="item-card ${accentClass}" data-row="${r.Row || ''}" data-json='${encodeURIComponent(JSON.stringify(r))}'>
             <div class="item-card-top">
@@ -1323,6 +1502,7 @@
             <div class="item-card-meta">
               <span class="item-ref-tag">${r.Reference || "—"}</span>
               <span class="item-date"><i class="bi bi-calendar-event"></i>${initiationDate}</span>
+              ${agingChip}
               ${photoBadge}
             </div>
             <div class="item-card-foot">
@@ -1333,8 +1513,10 @@
         };
 
         if (cardListWrap) {
-          cardListWrap.innerHTML = filteredData.length ? filteredData.map(createCard).join('') : `<div class="card-list-empty">No matching records</div>`;
+          cardListWrap.innerHTML = filteredData.length ? filteredData.map(createCard).join('') : `<div class="card-list-empty"><i class="bi ${emptyMsg.icon}"></i><div>${emptyMsg.text}</div>${emptyMsg.showClear ? `<div class="clear-filters-link" id="emptyStateClearLink">Clear filters</div>` : ''}</div>`;
           attachCardClickHandlers();
+          const clearLink = document.getElementById('emptyStateClearLink');
+          if (clearLink) clearLink.addEventListener('click', () => btnClear.click());
         }
 
         updateFilterCountBadge();
@@ -1368,6 +1550,23 @@
         }
       }
 
+      function getEmptyStateMessage(){
+        const anyDropdownFilterActive = !!(filterDept.value || filterResp.value || filterRef.value || filterMonth.value || filterYear.value || filterText.value);
+        if (anyDropdownFilterActive) {
+          return { icon: 'bi-search', text: 'No items match your filters.', showClear: true };
+        }
+        if (activeStatusFilter === 'Overdue') {
+          return { icon: 'bi-shield-check', text: 'No overdue items — everything is on track.', showClear: false };
+        }
+        if (activeStatusFilter === 'Open') {
+          return { icon: 'bi-shield-check', text: 'No open items right now — nice work.', showClear: false };
+        }
+        if (activeStatusFilter === 'Closed') {
+          return { icon: 'bi-inbox', text: 'No closed items yet.', showClear: false };
+        }
+        return { icon: 'bi-inbox', text: 'No action items yet.', showClear: false };
+      }
+
       function updateStats(){
         let contextData = allData || [];
         if(filterDept.value) contextData = contextData.filter(r => (r.Department || '') === filterDept.value);
@@ -1378,14 +1577,87 @@
         if(filterText.value) { const s = filterText.value.toLowerCase(); contextData = contextData.filter(r => (r.Description || '').toLowerCase().includes(s)); }
 
         const total = contextData.length || 0;
-        const open = contextData.filter(r => (r.Status || '').toString().trim().toLowerCase()==='open').length || 0;
-        const closed = contextData.filter(r => (r.Status || '').toString().trim().toLowerCase()==='closed').length || 0;
+        const open = contextData.filter(r => getComputedStatus(r) === 'Open').length || 0;
+        const overdue = contextData.filter(r => getComputedStatus(r) === 'Overdue').length || 0;
+        const closed = contextData.filter(r => getComputedStatus(r) === 'Closed').length || 0;
 
         animateCount(statTotalEl, total); 
         animateCount(statOpenEl, open); 
+        animateCount(statOverdueEl, overdue);
         animateCount(statClosedEl, closed);
         
         renderActiveChips();
+      }
+
+      /* ==========================================================================
+          DEPARTMENT BREAKDOWN CHART
+          Always reflects the full dataset (not the current filter selection) so it
+          stays a stable at-a-glance overview. Counts only unresolved items —
+          Closed items don't contribute, since the point is "where is outstanding
+          risk concentrated," not a historical tally.
+          ========================================================================== */
+      let deptChartExpanded = false;
+
+      function computeDeptBreakdown(){
+        const counts = {};
+        (allData || []).forEach(r => {
+          const status = getComputedStatus(r);
+          if (status === 'Closed') return;
+          const dept = (r.Department || '').toString().trim() || 'Unspecified';
+          if (!counts[dept]) counts[dept] = { open: 0, overdue: 0 };
+          if (status === 'Overdue') counts[dept].overdue++;
+          else counts[dept].open++;
+        });
+        const rows = Object.keys(counts).map(dept => ({
+          dept,
+          total: counts[dept].open + counts[dept].overdue,
+          overdue: counts[dept].overdue
+        }));
+        rows.sort((a,b) => b.total - a.total);
+        return rows;
+      }
+
+      function renderDeptChart(){
+        const deptChartBody = document.getElementById('deptChartBody');
+        if (!deptChartBody) return;
+        const rows = computeDeptBreakdown();
+
+        if (!rows.length) {
+          deptChartBody.innerHTML = `<div class="dept-chart-empty">No open items right now — nice work.</div>`;
+          return;
+        }
+
+        const maxTotal = Math.max(...rows.map(r => r.total), 1);
+        const visibleRows = deptChartExpanded ? rows : rows.slice(0, 5);
+
+        deptChartBody.innerHTML = visibleRows.map(r => {
+          const pct = Math.max(6, Math.round((r.total / maxTotal) * 100));
+          const fillClass = r.overdue > 0 ? 'fill-overdue' : 'fill-open';
+          return `
+            <div class="dept-bar-row" data-dept="${escapeHtml(r.dept)}">
+              <div class="dept-bar-label">${escapeHtml(r.dept)}</div>
+              <div class="dept-bar-track"><div class="dept-bar-fill ${fillClass}" style="width:${pct}%"></div></div>
+              <div class="dept-bar-count">${r.total}</div>
+            </div>`;
+        }).join('') + (rows.length > 5 ? `<button type="button" class="dept-chart-toggle" id="btnDeptChartToggle">${deptChartExpanded ? 'Show less' : `Show all ${rows.length} departments`}</button>` : '');
+
+        deptChartBody.querySelectorAll('.dept-bar-row').forEach(el => {
+          el.addEventListener('click', () => {
+            filterDept.value = el.getAttribute('data-dept');
+            populateFilters();
+            renderTable();
+            const region = document.getElementById('dataRegion');
+            if (region) region.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
+
+        const toggleBtn = document.getElementById('btnDeptChartToggle');
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', () => {
+            deptChartExpanded = !deptChartExpanded;
+            renderDeptChart();
+          });
+        }
       }
 
       function attachRowClickHandlers(){
@@ -1436,12 +1708,14 @@
         floatMeta.innerHTML = `${dept} | Initiated: <span>${initDate}</span>`;
         refValue.textContent = obj.Reference || '';
 
-        const statusRaw = (obj.Status || '').toString().trim();
-        const isClosed = statusRaw.toLowerCase() === 'closed';
-        const isOpen = statusRaw.toLowerCase() === 'open';
+        const computedStatus = getComputedStatus(obj);
+        const isClosed = computedStatus === 'Closed';
+        const isOverdue = computedStatus === 'Overdue';
+        const isOpen = computedStatus === 'Open';
 
-        floatCard.classList.remove('neon-open', 'neon-closed');
+        floatCard.classList.remove('neon-open', 'neon-overdue', 'neon-closed');
         if(isClosed) { floatCard.classList.add('neon-closed'); }
+        else if (isOverdue) { floatCard.classList.add('neon-overdue'); }
         else if (isOpen) { floatCard.classList.add('neon-open'); }
 
         const rawImageField = obj.Image || obj["Image URL"] || obj["image"] || obj["imageUrl"] || "";
@@ -1473,15 +1747,19 @@
         let badgeClass = 'status-other-badge';
         if(isClosed) badgeClass = 'status-closed-badge';
         else if(isOpen) badgeClass = 'status-open-badge';
+        else if(isOverdue) badgeClass = 'status-overdue-badge';
 
         let btnState = isClosed ? 'disabled' : '';
         let btnText = isClosed ? 'Closed ✅' : 'Mark as Closed';
         let btnStyle = isClosed ? 'background:#e9ecef;color:#555;border:1px solid #ddd;' : '';
 
+        const aging = getAgingInfo(obj);
+        const agingHtml = aging ? `<div class="aging-chip level-${aging.level}" style="margin-top:6px;">${aging.label}</div>` : '';
+
         const footerHTML = `
            <div class="footer-group-left">
              <div class="footer-item"><div class="footer-label">Target Date</div><div class="footer-value">${cleanDate(obj["Target Date"]) || '-'}</div></div>
-             <div class="footer-item"><div class="footer-label">Status</div><div class="footer-value"><span class="status-badge ${badgeClass}">${statusRaw}</span></div></div>
+             <div class="footer-item"><div class="footer-label">Status</div><div class="footer-value"><span class="status-badge ${badgeClass}">${computedStatus}</span>${agingHtml}</div></div>
            </div>
            <div class="footer-btn-area"><button id="btnMarkClosedFooter" class="btn-mark-closed" ${btnState} style="${btnStyle}">${btnText}</button></div>
         `;
@@ -1533,9 +1811,11 @@
             updateTableRowStatusInDOM(rowId, 'Closed'); 
             openFloatCardByIndex(idxFiltered);
             updateStats(); 
+            renderDeptChart();
+            if (navigator.vibrate) { try { navigator.vibrate(15); } catch(e){} }
          } catch(err){
             alert('Update trigger failed.');
-            if(btn) { btn.disabled = false; btn.textContent = 'Mark as Closed'; btn.style.background = '#d9534f'; btn.style.color = '#fff'; }
+            if(btn) { btn.disabled = false; btn.textContent = 'Mark as Closed'; btn.style.background = 'var(--success-500)'; btn.style.color = '#fff'; }
          }
       }
 
@@ -1833,6 +2113,63 @@
             .catch(err => console.warn('Service worker registration failed:', err));
         });
       }
+
+      /* ==========================================================================
+          PULL TO REFRESH (mobile only)
+          Only activates when at the very top of the page and no drawer/sheet is
+          open, so it never fights with normal scrolling or in-drawer gestures.
+          ========================================================================== */
+      (function setupPullToRefresh(){
+        const indicator = document.getElementById('pullRefreshIndicator');
+        if (!indicator) return;
+
+        const THRESHOLD = 64;
+        const MAX_PULL = 90;
+        let startY = 0;
+        let pulling = false;
+        let currentPull = 0;
+
+        function isMobileWidth(){ return window.matchMedia('(max-width: 768px)').matches; }
+        function anyOverlayOpen(){
+          return addBackdrop.classList.contains('show') ||
+                 floatBackdrop.classList.contains('show') ||
+                 filterBox.classList.contains('sheet-open');
+        }
+
+        window.addEventListener('touchstart', (e) => {
+          if (!isMobileWidth() || anyOverlayOpen() || window.scrollY > 0) { pulling = false; return; }
+          startY = e.touches[0].clientY;
+          pulling = true;
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+          if (!pulling) return;
+          if (anyOverlayOpen() || window.scrollY > 0) { pulling = false; indicator.classList.remove('visible','ready'); return; }
+          const deltaY = e.touches[0].clientY - startY;
+          if (deltaY <= 0) { currentPull = 0; indicator.classList.remove('visible','ready'); return; }
+          currentPull = Math.min(deltaY * 0.5, MAX_PULL);
+          indicator.classList.add('visible');
+          indicator.style.transform = `translate(-50%, ${currentPull - 40}px)`;
+          indicator.classList.toggle('ready', currentPull >= THRESHOLD);
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+          if (!pulling) return;
+          pulling = false;
+          if (currentPull >= THRESHOLD) {
+            indicator.classList.add('loading');
+            indicator.style.transform = `translate(-50%, 6px)`;
+            fetchData().finally(() => {
+              indicator.classList.remove('loading', 'visible', 'ready');
+              indicator.style.transform = '';
+            });
+          } else {
+            indicator.classList.remove('visible', 'ready');
+            indicator.style.transform = '';
+          }
+          currentPull = 0;
+        });
+      })();
 
       document.addEventListener('DOMContentLoaded', fetchData);
     </script>
