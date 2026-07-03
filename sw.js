@@ -3,7 +3,7 @@
 // Run from the same folder as index.html (GitHub Pages / any static host).
 // ========================
 
-const CACHE_NAME = 'aitr-shell-v4';
+const CACHE_NAME = 'aitr-shell-v5';
 const SHELL_ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', (event) => {
