@@ -706,6 +706,40 @@
       .pull-refresh-indicator.loading .pull-refresh-spinner{ animation: pullSpin 0.7s linear infinite; }
       @keyframes pullSpin{ to{ transform: rotate(360deg); } }
       @media (min-width:769px){ .pull-refresh-indicator{ display:none; } }
+
+      /* ==========================================================================
+          PUBLIC DIGITAL REPORT VIEW (opened via the QR code on a generated doc)
+          ========================================================================== */
+      .public-report-main{
+        max-width: 560px; margin: 0 auto;
+        padding: 20px 16px calc(40px + env(safe-area-inset-bottom));
+      }
+      .public-report-state{
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        text-align:center; padding: 60px 20px; gap:8px;
+      }
+      .public-report-notfound-text{ font-family: var(--font-display); font-weight:600; font-size:17px; color: var(--ink); }
+      .public-report-notfound-sub{ font-size:13px; color: var(--text-muted); max-width:280px; }
+
+      .public-report-card{
+        background:#fff; border:1px solid var(--muted-border); border-radius:14px;
+        padding:20px; box-shadow: 0 4px 20px rgba(16,32,48,0.06);
+      }
+      .public-report-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+      .public-report-dept{ font-family: var(--font-display); font-weight:700; font-size:20px; color: var(--ink); }
+
+      .public-report-meta{ display:flex; flex-wrap:wrap; gap:20px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid #F0EFE9; }
+      .public-report-meta-item{ display:flex; flex-direction:column; gap:3px; }
+      .public-report-meta-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; font-weight:700; color: var(--text-muted); }
+      .public-report-meta-value{ font-family: var(--font-mono); font-size:13px; color: var(--text-strong); font-weight:600; }
+
+      .public-report-section-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.6px; font-weight:700; color: var(--text-muted); margin-bottom:8px; }
+      .public-report-desc{ font-size:15px; line-height:1.55; color: var(--ink); margin-bottom:20px; }
+
+      .public-report-photos{ display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
+      .public-report-photo-cell{ border-radius:9px; overflow:hidden; border:1px solid var(--muted-border); aspect-ratio: 1/1; cursor:zoom-in; }
+      .public-report-photo-cell img{ width:100%; height:100%; object-fit:cover; display:block; }
+      @media (max-width:420px){ .public-report-photos{ grid-template-columns: repeat(2, 1fr); } }
       .item-card:active{ transform: scale(0.985); box-shadow: 0 1px 4px rgba(9,30,66,0.08); }
       .item-card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
       .item-dept{ font-family: var(--font-display); font-weight:600; font-size:13.5px; color:var(--ink); }
@@ -809,6 +843,8 @@
     </style>
   </head>
   <body>
+
+    <div id="mainAppRoot">
 
     <header class="app-bar">
       <div class="app-bar-inner">
@@ -1057,6 +1093,66 @@
     </div>
 
     <div class="app-toast" id="appToast"><i class="bi bi-check-circle-fill"></i><span id="appToastText"></span></div>
+
+    </div>
+    <!-- ================= END mainAppRoot ================= -->
+
+    <!-- ==========================================================================
+        PUBLIC DIGITAL REPORT VIEW — shown instead of the dashboard when the
+        page is opened with a ?report=<row> URL parameter (i.e. via the QR
+        code printed on a generated Word doc). Read-only, no login, no edit
+        controls — anyone who scans the QR can see this.
+        ========================================================================== -->
+    <div id="publicReportView" style="display:none;">
+      <header class="app-bar">
+        <div class="app-bar-inner">
+          <div class="app-bar-title">
+            <i class="bi bi-clipboard2-check-fill"></i>
+            <span>Digital Safety Report</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="public-report-main">
+        <div id="publicReportLoading" class="public-report-state">
+          <div class="skeleton-list" style="max-width:520px;">
+            <div class="skeleton-card"><div class="skeleton-line w-40"></div><div class="skeleton-line w-90"></div><div class="skeleton-line w-60"></div></div>
+          </div>
+        </div>
+
+        <div id="publicReportNotFound" class="public-report-state" style="display:none;">
+          <i class="bi bi-exclamation-circle" style="font-size:34px; color: var(--text-muted); opacity:0.5;"></i>
+          <div class="public-report-notfound-text">Report not found.</div>
+          <div class="public-report-notfound-sub">This link may be out of date, or the report may have been removed.</div>
+        </div>
+
+        <div id="publicReportContent" class="public-report-card" style="display:none;">
+          <div class="public-report-top">
+            <span id="prDept" class="public-report-dept"></span>
+            <span id="prStatus" class="status-badge"></span>
+          </div>
+
+          <div class="public-report-meta">
+            <div class="public-report-meta-item">
+              <span class="public-report-meta-label">Date of Inspection</span>
+              <span id="prDate" class="public-report-meta-value"></span>
+            </div>
+            <div class="public-report-meta-item">
+              <span class="public-report-meta-label">Reference</span>
+              <span id="prRef" class="public-report-meta-value"></span>
+            </div>
+          </div>
+
+          <div class="public-report-section-label">Observation</div>
+          <div id="prDesc" class="public-report-desc"></div>
+
+          <div id="prPhotosWrap" style="display:none;">
+            <div class="public-report-section-label">Photo Evidence</div>
+            <div id="prPhotosGrid" class="public-report-photos"></div>
+          </div>
+        </div>
+      </main>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -2171,7 +2267,85 @@
         });
       })();
 
-      document.addEventListener('DOMContentLoaded', fetchData);
+      /* ==========================================================================
+          PUBLIC DIGITAL REPORT VIEW
+          Shown instead of the dashboard when the page is opened with a
+          ?report=<row> URL parameter (i.e. via the QR code printed on a
+          generated Word doc). Read-only — reuses the existing data endpoint
+          and lightbox, but shows only one row's Date/Location/Observation/Photos.
+          ========================================================================== */
+      function getUrlParam(name){
+        const params = new URLSearchParams(window.location.search);
+        return params.get(name);
+      }
+
+      async function initPublicReportView(reportId){
+        const mainAppRoot = document.getElementById('mainAppRoot');
+        const publicView = document.getElementById('publicReportView');
+        const loadingEl = document.getElementById('publicReportLoading');
+        const notFoundEl = document.getElementById('publicReportNotFound');
+        const contentEl = document.getElementById('publicReportContent');
+
+        mainAppRoot.style.display = 'none';
+        publicView.style.display = 'block';
+
+        try {
+          if (!SCRIPT_BASE_URL) throw new Error('SCRIPT_BASE_URL not set.');
+          const res = await fetch(SCRIPT_BASE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const json = await res.json();
+
+          let rows = [];
+          if (Array.isArray(json)) rows = json;
+          else if (json && Array.isArray(json.data)) rows = json.data;
+          else if (json && Array.isArray(json.records)) rows = json.records;
+
+          const match = rows.find(r => String(r.Row) === String(reportId));
+
+          loadingEl.style.display = 'none';
+
+          if (!match) {
+            notFoundEl.style.display = 'flex';
+            return;
+          }
+
+          document.getElementById('prDept').textContent = match.Department || '—';
+
+          const computedStatus = getComputedStatus(match);
+          const statusBadge = document.getElementById('prStatus');
+          statusBadge.textContent = computedStatus;
+          const badgeClass = computedStatus === 'Closed' ? 'status-closed-badge'
+            : computedStatus === 'Overdue' ? 'status-overdue-badge'
+            : computedStatus === 'Open' ? 'status-open-badge'
+            : 'status-other-badge';
+          statusBadge.className = 'status-badge ' + badgeClass;
+
+          document.getElementById('prDate').textContent = cleanDate(match["Initiation Date"]) || '—';
+          document.getElementById('prRef').textContent = match.Reference || '—';
+          document.getElementById('prDesc').textContent = match.Description || '—';
+
+          const photoUrls = String(match.Image || '').split(',').map(s => s.trim()).filter(Boolean);
+          if (photoUrls.length) {
+            document.getElementById('prPhotosWrap').style.display = 'block';
+            document.getElementById('prPhotosGrid').innerHTML = photoUrls.map(u =>
+              `<div class="public-report-photo-cell" onclick="openLightbox('${u}')"><img src="${u}" alt="Evidence" loading="lazy" /></div>`
+            ).join('');
+          }
+
+          contentEl.style.display = 'block';
+        } catch (err) {
+          console.error('Public report view failed to load', err);
+          loadingEl.style.display = 'none';
+          notFoundEl.style.display = 'flex';
+        }
+      }
+
+      const publicReportId = getUrlParam('report');
+      if (publicReportId) {
+        initPublicReportView(publicReportId);
+      } else {
+        document.addEventListener('DOMContentLoaded', fetchData);
+      }
     </script>
   </body>
 </html>
