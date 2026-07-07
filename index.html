@@ -235,14 +235,15 @@
       .status-other-badge { background: var(--status-other-bg); color: var(--status-other-text); }
       .status-overdue-badge { background: var(--danger-500); color: #fff; }
 
-      /* Wraps the main status badge with a small "Overdue" sub-tag stacked
-         directly under it, so the primary badge stays a simple Open/Closed
-         while overdue items still get a clear, compact secondary signal. */
+      /* Small red "Overdue by N days" tag shown in the detail drawer only —
+         the main list (cards/table) keeps a plain Open/Closed badge, with
+         this specific day-count detail reserved for when someone opens an
+         item's full details. */
       .status-badge-wrap{ display:inline-flex; flex-direction:column; align-items:flex-end; gap:4px; }
       .overdue-subtag{
         display:inline-flex; background: var(--danger-500); color:#fff;
-        font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px;
-        padding:2px 7px; border-radius:5px; white-space:nowrap;
+        font-size:11px; font-weight:700; letter-spacing:0.2px;
+        padding:3px 9px; border-radius:5px; white-space:nowrap;
       }
 
       #loaderBar{
@@ -1493,7 +1494,6 @@
           const computedStatus = getComputedStatus(r);
           const badgeText = computedStatus === 'Overdue' ? 'Open' : computedStatus;
           const statusDisplay = getStatusBadgeHtml(badgeText);
-          const overdueTag = computedStatus === 'Overdue' ? '<div class="overdue-subtag">Overdue</div>' : '';
           const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
           const initiationDate = cleanDate(r["Initiation Date"]) || "";
           const targetDate = cleanDate(r["Target Date"]) || "";
@@ -1507,7 +1507,7 @@
             <td class="cell-mono">${targetDate}</td>
             <td>${r["Action By"] || ""}</td>
             <td>${r["Responsible Person"] || ""}</td>
-            <td class="status-col"><div class="status-badge-wrap">${statusDisplay}${overdueTag}</div></td>
+            <td class="status-col">${statusDisplay}</td>
           </tr>`;
         };
 
@@ -1523,8 +1523,7 @@
           if(computedStatus==='Closed'){ badgeClass='status-closed-badge'; accentClass='accent-closed'; badgeText='Closed'; }
           else if(computedStatus==='Open') { badgeClass='status-open-badge'; accentClass='accent-open'; badgeText='Open'; }
           else if(computedStatus==='Overdue') { badgeClass='status-open-badge'; accentClass='accent-overdue'; badgeText='Open'; }
-          const overdueTag = computedStatus === 'Overdue' ? '<div class="overdue-subtag">Overdue</div>' : '';
-          const statusDisplay = `<div class="status-badge-wrap"><div class="status-badge ${badgeClass}">${badgeText}</div>${overdueTag}</div>`;
+          const statusDisplay = `<div class="status-badge ${badgeClass}">${badgeText}</div>`;
           const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
           const initiationDate = cleanDate(r["Initiation Date"]) || "";
           const photoCount = String(r.Image || '').split(',').map(s => s.trim()).filter(Boolean).length;
@@ -1713,7 +1712,8 @@
         let btnStyle = isClosed ? 'background:#e9ecef;color:#555;border:1px solid #ddd;' : '';
 
         const badgeText = isOverdue ? 'Open' : computedStatus;
-        const overdueTag = isOverdue ? '<div class="overdue-subtag">Overdue</div>' : '';
+        const aging = isOverdue ? getAgingInfo(obj) : null;
+        const overdueTag = (isOverdue && aging) ? `<div class="overdue-subtag">${aging.label}</div>` : '';
 
         const footerHTML = `
            <div class="footer-group-left">
@@ -2182,7 +2182,13 @@
             : (computedStatus === 'Open' || isOverdue) ? 'status-open-badge'
             : 'status-other-badge';
           statusBadge.className = 'status-badge ' + badgeClass;
-          overdueTagEl.style.display = isOverdue ? 'inline-flex' : 'none';
+          if (isOverdue) {
+            const aging = getAgingInfo(match);
+            overdueTagEl.textContent = aging ? aging.label : 'Overdue';
+            overdueTagEl.style.display = 'inline-flex';
+          } else {
+            overdueTagEl.style.display = 'none';
+          }
 
           document.getElementById('prDate').textContent = cleanDate(match["Initiation Date"]) || '—';
           document.getElementById('prRef').textContent = match.Reference || '—';
