@@ -83,7 +83,7 @@
          ========================================= */
       .dash-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 14px;
         margin-bottom: 22px;
       }
@@ -122,10 +122,6 @@
       .dash-card.card-amber { border-top-color: var(--status-open-text); }
       .dash-card.card-amber .val { color: var(--status-open-text); }
       .dash-card.card-amber .bg-icon { color: var(--status-open-text); }
-
-      .dash-card.card-red { border-top-color: var(--danger-500); }
-      .dash-card.card-red .val { color: var(--danger-500); }
-      .dash-card.card-red .bg-icon { color: var(--danger-500); }
 
       .dash-card.card-green { border-top-color: var(--success-500); }
       .dash-card.card-green .val { color: var(--success-500); }
@@ -239,17 +235,15 @@
       .status-other-badge { background: var(--status-other-bg); color: var(--status-other-text); }
       .status-overdue-badge { background: var(--danger-500); color: #fff; }
 
-      /* AGING / OVERDUE INDICATOR — used in table rows, mobile cards, and the drawer */
-      .aging-chip{
-        display:inline-flex; align-items:center; gap:4px;
-        font-size:11px; font-weight:700; padding:2px 7px; border-radius:5px;
-        white-space:nowrap;
+      /* Wraps the main status badge with a small "Overdue" sub-tag stacked
+         directly under it, so the primary badge stays a simple Open/Closed
+         while overdue items still get a clear, compact secondary signal. */
+      .status-badge-wrap{ display:inline-flex; flex-direction:column; align-items:flex-end; gap:4px; }
+      .overdue-subtag{
+        display:inline-flex; background: var(--danger-500); color:#fff;
+        font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:0.4px;
+        padding:2px 7px; border-radius:5px; white-space:nowrap;
       }
-      .aging-chip i{ font-size:10.5px; }
-      .aging-chip.level-fresh{ color: var(--text-muted); background: var(--status-other-bg); }
-      .aging-chip.level-aging{ color: var(--status-open-text); background: var(--status-open-bg); }
-      .aging-chip.level-stale{ color: var(--status-stale-text); background: var(--status-stale-bg); }
-      .aging-chip.level-overdue{ color: #fff; background: var(--danger-500); }
 
       #loaderBar{
         position:absolute; top:0; left:0; height:4px; width:0%;
@@ -653,39 +647,6 @@
       .item-card.accent-overdue{ border-left-color: var(--danger-500); }
 
       /* ==========================================================================
-          DEPARTMENT BREAKDOWN CHART — bar-list of open/overdue items per department
-          ========================================================================== */
-      .dept-chart-card{ margin-bottom: 18px; }
-      .dept-chart-header{
-        display:flex; align-items:center; gap:9px;
-        font-family: var(--font-display); font-weight:700; font-size:15.5px;
-        color: var(--ink); text-transform: uppercase; letter-spacing:0.3px;
-        margin-bottom: 14px;
-      }
-      .dept-chart-header i{ color: var(--brand-500); font-size:15px; }
-      .dept-chart-body{ display:flex; flex-direction:column; gap:11px; }
-      .dept-bar-row{
-        display:grid; grid-template-columns: 108px 1fr 30px; align-items:center; gap:10px;
-        cursor:pointer;
-      }
-      .dept-bar-label{
-        font-size:12.5px; font-weight:600; color: var(--text-strong);
-        overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-      }
-      .dept-bar-track{ background: var(--status-other-bg); border-radius:5px; height:9px; overflow:hidden; }
-      .dept-bar-fill{ height:100%; border-radius:5px; transition: width .5s ease; }
-      .dept-bar-fill.fill-open{ background: var(--accent-500); }
-      .dept-bar-fill.fill-overdue{ background: var(--danger-500); }
-      .dept-bar-count{ font-family: var(--font-mono); font-size:12.5px; font-weight:600; color: var(--text-strong); text-align:right; }
-      .dept-chart-empty{ color: var(--text-muted); font-size:13px; padding: 6px 0; }
-      .dept-chart-toggle{
-        margin-top:2px; align-self:flex-start; background:none; border:none;
-        color: var(--brand-500); font-size:12.5px; font-weight:600; cursor:pointer; padding:0;
-      }
-      .dept-chart-toggle:hover{ text-decoration:underline; }
-      @media (max-width:480px){ .dept-bar-row{ grid-template-columns: 84px 1fr 26px; } }
-
-      /* ==========================================================================
           PULL TO REFRESH (mobile only)
           ========================================================================== */
       .pull-refresh-indicator{
@@ -800,8 +761,8 @@
       @media (max-width: 768px){
         .container-main{ padding: 10px 10px calc(90px + env(safe-area-inset-bottom)) 10px; }
 
-        /* Compact 2x2 stat tiles instead of full-height stacked cards */
-        .dash-grid{ grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+        /* Compact 3-up stat tiles instead of full-height stacked cards */
+        .dash-grid{ grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
         .dash-card{ padding: 12px 10px; border-radius: 10px; }
         .dash-card .lbl{ font-size: 8.5px; margin-bottom: 4px; }
         .dash-card .val{ font-size: 22px; }
@@ -879,28 +840,12 @@
           <i class="bi bi-hourglass-split bg-icon"></i>
         </div>
 
-        <div class="dash-card card-red" id="cardOverdue" onclick="applyStatusFilter('Overdue')">
-          <div class="lbl">Overdue</div>
-          <div class="val" id="statOverdue">0</div>
-          <i class="bi bi-exclamation-triangle-fill bg-icon"></i>
-        </div>
-
         <div class="dash-card card-green" id="cardClosed" onclick="applyStatusFilter('Closed')">
           <div class="lbl">Closed Actions</div>
           <div class="val" id="statClosed">0</div>
           <i class="bi bi-check-circle bg-icon"></i>
         </div>
 
-      </div>
-
-      <div class="card-ui dept-chart-card" id="deptChartCard">
-        <div class="card-inner">
-          <div class="dept-chart-header">
-            <i class="bi bi-bar-chart-line-fill"></i>
-            <span>Open Items by Department</span>
-          </div>
-          <div class="dept-chart-body" id="deptChartBody"></div>
-        </div>
       </div>
 
       <div class="card-ui">
@@ -1129,7 +1074,10 @@
         <div id="publicReportContent" class="public-report-card" style="display:none;">
           <div class="public-report-top">
             <span id="prDept" class="public-report-dept"></span>
-            <span id="prStatus" class="status-badge"></span>
+            <div class="status-badge-wrap">
+              <span id="prStatus" class="status-badge"></span>
+              <div id="prOverdueTag" class="overdue-subtag" style="display:none;">Overdue</div>
+            </div>
           </div>
 
           <div class="public-report-meta">
@@ -1164,12 +1112,10 @@
       const tableBody = document.getElementById('tableBody');
       const statTotalEl = document.getElementById('statTotal');
       const statOpenEl = document.getElementById('statOpen');
-      const statOverdueEl = document.getElementById('statOverdue');
       const statClosedEl = document.getElementById('statClosed');
       
       const cardTotal = document.getElementById('cardTotal');
       const cardOpen = document.getElementById('cardOpen');
-      const cardOverdue = document.getElementById('cardOverdue');
       const cardClosed = document.getElementById('cardClosed');
 
       const btnRefreshTop = document.getElementById('btnRefreshTop');
@@ -1219,7 +1165,7 @@
       let allData = [];
       let filteredData = [];
       let currentIndex = -1;
-      let activeStatusFilter = 'All'; // 'All', 'Open', 'Overdue', 'Closed'
+      let activeStatusFilter = 'All'; // 'All', 'Open', 'Closed'
 
       function animateCount(el, newVal, duration = 600){
         const start = Number(el.textContent) || 0;
@@ -1433,11 +1379,10 @@
 
           populateFilters();
           renderTable();
-          renderDeptChart();
         }catch(err){
           console.error('Fetch error', err);
           tableBody.innerHTML = `<tr><td colspan="9" class="text-danger text-center">Failed to load data. Check Apps Script & permissions.</td></tr>`;
-          animateCount(statTotalEl,0); animateCount(statOpenEl,0); animateCount(statOverdueEl,0); animateCount(statClosedEl,0);
+          animateCount(statTotalEl,0); animateCount(statOpenEl,0); animateCount(statClosedEl,0);
         }finally{
           const tbl = document.getElementById('dataTable'); if(tbl){ tbl.classList.add('table-fade'); setTimeout(()=> tbl.classList.add('show'),40); }
           hideLoader();
@@ -1502,12 +1447,10 @@
         activeStatusFilter = status;
         cardTotal.classList.remove('active-filter');
         cardOpen.classList.remove('active-filter');
-        cardOverdue.classList.remove('active-filter');
         cardClosed.classList.remove('active-filter');
         
         if(status === 'All') cardTotal.classList.add('active-filter');
         if(status === 'Open') cardOpen.classList.add('active-filter');
-        if(status === 'Overdue') cardOverdue.classList.add('active-filter');
         if(status === 'Closed') cardClosed.classList.add('active-filter');
 
         renderTable();
@@ -1518,9 +1461,7 @@
 
         // 1. Apply Status Filter from Dashboard Cards
         if (activeStatusFilter === 'Open') {
-          data = data.filter(r => getComputedStatus(r) === 'Open');
-        } else if (activeStatusFilter === 'Overdue') {
-          data = data.filter(r => getComputedStatus(r) === 'Overdue');
+          data = data.filter(r => getComputedStatus(r) !== 'Closed');
         } else if (activeStatusFilter === 'Closed') {
           data = data.filter(r => getComputedStatus(r) === 'Closed');
         }
@@ -1550,9 +1491,9 @@
 
         const createRow = (r) => {
           const computedStatus = getComputedStatus(r);
-          const statusDisplay = getStatusBadgeHtml(computedStatus);
-          const aging = getAgingInfo(r);
-          const agingSub = aging ? `<div class="aging-chip level-${aging.level}" style="margin-top:4px;">${aging.shortLabel}</div>` : '';
+          const badgeText = computedStatus === 'Overdue' ? 'Open' : computedStatus;
+          const statusDisplay = getStatusBadgeHtml(badgeText);
+          const overdueTag = computedStatus === 'Overdue' ? '<div class="overdue-subtag">Overdue</div>' : '';
           const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
           const initiationDate = cleanDate(r["Initiation Date"]) || "";
           const targetDate = cleanDate(r["Target Date"]) || "";
@@ -1566,7 +1507,7 @@
             <td class="cell-mono">${targetDate}</td>
             <td>${r["Action By"] || ""}</td>
             <td>${r["Responsible Person"] || ""}</td>
-            <td class="status-col">${statusDisplay}${agingSub}</td>
+            <td class="status-col"><div class="status-badge-wrap">${statusDisplay}${overdueTag}</div></td>
           </tr>`;
         };
 
@@ -1578,16 +1519,16 @@
           const computedStatus = getComputedStatus(r);
           let badgeClass = 'status-other-badge';
           let accentClass = 'accent-other';
-          if(computedStatus==='Closed'){ badgeClass='status-closed-badge'; accentClass='accent-closed'; }
-          else if(computedStatus==='Open') { badgeClass='status-open-badge'; accentClass='accent-open'; }
-          else if(computedStatus==='Overdue') { badgeClass='status-overdue-badge'; accentClass='accent-overdue'; }
-          const statusDisplay = `<div class="status-badge ${badgeClass}">${computedStatus}</div>`;
+          let badgeText = computedStatus;
+          if(computedStatus==='Closed'){ badgeClass='status-closed-badge'; accentClass='accent-closed'; badgeText='Closed'; }
+          else if(computedStatus==='Open') { badgeClass='status-open-badge'; accentClass='accent-open'; badgeText='Open'; }
+          else if(computedStatus==='Overdue') { badgeClass='status-open-badge'; accentClass='accent-overdue'; badgeText='Open'; }
+          const overdueTag = computedStatus === 'Overdue' ? '<div class="overdue-subtag">Overdue</div>' : '';
+          const statusDisplay = `<div class="status-badge-wrap"><div class="status-badge ${badgeClass}">${badgeText}</div>${overdueTag}</div>`;
           const desc = (r.Description || '').replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
           const initiationDate = cleanDate(r["Initiation Date"]) || "";
           const photoCount = String(r.Image || '').split(',').map(s => s.trim()).filter(Boolean).length;
           const photoBadge = photoCount > 0 ? `<span class="photo-count"><i class="bi bi-camera-fill"></i>${photoCount > 1 ? photoCount : ''}</span>` : '';
-          const aging = getAgingInfo(r);
-          const agingChip = aging ? `<span class="aging-chip level-${aging.level}"><i class="bi bi-clock-history"></i>${aging.label}</span>` : '';
 
           return `<div class="item-card ${accentClass}" data-row="${r.Row || ''}" data-json='${encodeURIComponent(JSON.stringify(r))}'>
             <div class="item-card-top">
@@ -1598,7 +1539,6 @@
             <div class="item-card-meta">
               <span class="item-ref-tag">${r.Reference || "—"}</span>
               <span class="item-date"><i class="bi bi-calendar-event"></i>${initiationDate}</span>
-              ${agingChip}
               ${photoBadge}
             </div>
             <div class="item-card-foot">
@@ -1651,9 +1591,6 @@
         if (anyDropdownFilterActive) {
           return { icon: 'bi-search', text: 'No items match your filters.', showClear: true };
         }
-        if (activeStatusFilter === 'Overdue') {
-          return { icon: 'bi-shield-check', text: 'No overdue items — everything is on track.', showClear: false };
-        }
         if (activeStatusFilter === 'Open') {
           return { icon: 'bi-shield-check', text: 'No open items right now — nice work.', showClear: false };
         }
@@ -1673,87 +1610,14 @@
         if(filterText.value) { const s = filterText.value.toLowerCase(); contextData = contextData.filter(r => (r.Description || '').toLowerCase().includes(s)); }
 
         const total = contextData.length || 0;
-        const open = contextData.filter(r => getComputedStatus(r) === 'Open').length || 0;
-        const overdue = contextData.filter(r => getComputedStatus(r) === 'Overdue').length || 0;
+        const open = contextData.filter(r => getComputedStatus(r) !== 'Closed').length || 0;
         const closed = contextData.filter(r => getComputedStatus(r) === 'Closed').length || 0;
 
         animateCount(statTotalEl, total); 
         animateCount(statOpenEl, open); 
-        animateCount(statOverdueEl, overdue);
         animateCount(statClosedEl, closed);
         
         renderActiveChips();
-      }
-
-      /* ==========================================================================
-          DEPARTMENT BREAKDOWN CHART
-          Always reflects the full dataset (not the current filter selection) so it
-          stays a stable at-a-glance overview. Counts only unresolved items —
-          Closed items don't contribute, since the point is "where is outstanding
-          risk concentrated," not a historical tally.
-          ========================================================================== */
-      let deptChartExpanded = false;
-
-      function computeDeptBreakdown(){
-        const counts = {};
-        (allData || []).forEach(r => {
-          const status = getComputedStatus(r);
-          if (status === 'Closed') return;
-          const dept = (r.Department || '').toString().trim() || 'Unspecified';
-          if (!counts[dept]) counts[dept] = { open: 0, overdue: 0 };
-          if (status === 'Overdue') counts[dept].overdue++;
-          else counts[dept].open++;
-        });
-        const rows = Object.keys(counts).map(dept => ({
-          dept,
-          total: counts[dept].open + counts[dept].overdue,
-          overdue: counts[dept].overdue
-        }));
-        rows.sort((a,b) => b.total - a.total);
-        return rows;
-      }
-
-      function renderDeptChart(){
-        const deptChartBody = document.getElementById('deptChartBody');
-        if (!deptChartBody) return;
-        const rows = computeDeptBreakdown();
-
-        if (!rows.length) {
-          deptChartBody.innerHTML = `<div class="dept-chart-empty">No open items right now — nice work.</div>`;
-          return;
-        }
-
-        const maxTotal = Math.max(...rows.map(r => r.total), 1);
-        const visibleRows = deptChartExpanded ? rows : rows.slice(0, 5);
-
-        deptChartBody.innerHTML = visibleRows.map(r => {
-          const pct = Math.max(6, Math.round((r.total / maxTotal) * 100));
-          const fillClass = r.overdue > 0 ? 'fill-overdue' : 'fill-open';
-          return `
-            <div class="dept-bar-row" data-dept="${escapeHtml(r.dept)}">
-              <div class="dept-bar-label">${escapeHtml(r.dept)}</div>
-              <div class="dept-bar-track"><div class="dept-bar-fill ${fillClass}" style="width:${pct}%"></div></div>
-              <div class="dept-bar-count">${r.total}</div>
-            </div>`;
-        }).join('') + (rows.length > 5 ? `<button type="button" class="dept-chart-toggle" id="btnDeptChartToggle">${deptChartExpanded ? 'Show less' : `Show all ${rows.length} departments`}</button>` : '');
-
-        deptChartBody.querySelectorAll('.dept-bar-row').forEach(el => {
-          el.addEventListener('click', () => {
-            filterDept.value = el.getAttribute('data-dept');
-            populateFilters();
-            renderTable();
-            const region = document.getElementById('dataRegion');
-            if (region) region.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          });
-        });
-
-        const toggleBtn = document.getElementById('btnDeptChartToggle');
-        if (toggleBtn) {
-          toggleBtn.addEventListener('click', () => {
-            deptChartExpanded = !deptChartExpanded;
-            renderDeptChart();
-          });
-        }
       }
 
       function attachRowClickHandlers(){
@@ -1842,20 +1706,19 @@
         
         let badgeClass = 'status-other-badge';
         if(isClosed) badgeClass = 'status-closed-badge';
-        else if(isOpen) badgeClass = 'status-open-badge';
-        else if(isOverdue) badgeClass = 'status-overdue-badge';
+        else if(isOpen || isOverdue) badgeClass = 'status-open-badge';
 
         let btnState = isClosed ? 'disabled' : '';
         let btnText = isClosed ? 'Closed ✅' : 'Mark as Closed';
         let btnStyle = isClosed ? 'background:#e9ecef;color:#555;border:1px solid #ddd;' : '';
 
-        const aging = getAgingInfo(obj);
-        const agingHtml = aging ? `<div class="aging-chip level-${aging.level}" style="margin-top:6px;">${aging.label}</div>` : '';
+        const badgeText = isOverdue ? 'Open' : computedStatus;
+        const overdueTag = isOverdue ? '<div class="overdue-subtag">Overdue</div>' : '';
 
         const footerHTML = `
            <div class="footer-group-left">
              <div class="footer-item"><div class="footer-label">Target Date</div><div class="footer-value">${cleanDate(obj["Target Date"]) || '-'}</div></div>
-             <div class="footer-item"><div class="footer-label">Status</div><div class="footer-value"><span class="status-badge ${badgeClass}">${computedStatus}</span>${agingHtml}</div></div>
+             <div class="footer-item"><div class="footer-label">Status</div><div class="footer-value"><div class="status-badge-wrap" style="align-items:flex-start;"><span class="status-badge ${badgeClass}">${badgeText}</span>${overdueTag}</div></div></div>
            </div>
            <div class="footer-btn-area"><button id="btnMarkClosedFooter" class="btn-mark-closed" ${btnState} style="${btnStyle}">${btnText}</button></div>
         `;
@@ -1907,7 +1770,6 @@
             updateTableRowStatusInDOM(rowId, 'Closed'); 
             openFloatCardByIndex(idxFiltered);
             updateStats(); 
-            renderDeptChart();
             if (navigator.vibrate) { try { navigator.vibrate(15); } catch(e){} }
          } catch(err){
             alert('Update trigger failed.');
@@ -2313,12 +2175,14 @@
 
           const computedStatus = getComputedStatus(match);
           const statusBadge = document.getElementById('prStatus');
-          statusBadge.textContent = computedStatus;
+          const overdueTagEl = document.getElementById('prOverdueTag');
+          const isOverdue = computedStatus === 'Overdue';
+          statusBadge.textContent = isOverdue ? 'Open' : computedStatus;
           const badgeClass = computedStatus === 'Closed' ? 'status-closed-badge'
-            : computedStatus === 'Overdue' ? 'status-overdue-badge'
-            : computedStatus === 'Open' ? 'status-open-badge'
+            : (computedStatus === 'Open' || isOverdue) ? 'status-open-badge'
             : 'status-other-badge';
           statusBadge.className = 'status-badge ' + badgeClass;
+          overdueTagEl.style.display = isOverdue ? 'inline-flex' : 'none';
 
           document.getElementById('prDate').textContent = cleanDate(match["Initiation Date"]) || '—';
           document.getElementById('prRef').textContent = match.Reference || '—';
