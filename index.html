@@ -739,7 +739,7 @@
           SKELETON LOADING — replaces the generic spinner with placeholder cards
           that mimic the eventual layout, for better perceived performance
           ========================================================================== */
-      .skeleton-list{ display:flex; flex-direction:column; gap:10px; width:100%; max-width:640px; padding:0 4px; }
+      .skeleton-list{ display:flex; flex-direction:column; gap:10px; width:100%; padding:0 4px; box-sizing:border-box; }
       .skeleton-card{
         background:#fff; border:1px solid var(--muted-border); border-radius:12px;
         padding:14px 16px; border-left:4px solid var(--muted-border);
@@ -948,13 +948,6 @@
       </div>
     </div>
 
-    <div class="float-card-backdrop" id="lightboxBackdrop" style="z-index: 950; display: none; align-items: center; justify-content: center;">
-      <div id="lightboxContent" style="position: relative; max-width: 96vw; max-height: 96vh; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
-        <button class="float-close" id="lightboxClose" aria-label="Close" style="color: white; right: -24px; top: -24px; z-index: 960; background: rgba(0,0,0,0.5); border:none; width: 40px; height: 40px; line-height: 1.2;">&times;</button>
-        <img id="lightboxImage" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);" alt="Zoomed Action Item Image"/>
-      </div>
-    </div>
-
     <!-- Floating "Add New" button -->
     <button class="fab-add" id="fabAdd" title="Add new action item" aria-label="Add new action item">
       <i class="bi bi-plus-lg"></i>
@@ -1043,6 +1036,17 @@
     </div>
     <!-- ================= END mainAppRoot ================= -->
 
+    <!-- Lightbox lives OUTSIDE mainAppRoot so it still works when the public
+         report view is shown (mainAppRoot is display:none in that mode, and
+         a hidden ancestor hides everything inside it regardless of the
+         lightbox's own styles). -->
+    <div class="float-card-backdrop" id="lightboxBackdrop" style="z-index: 950; display: none; align-items: center; justify-content: center;">
+      <div id="lightboxContent" style="position: relative; max-width: 96vw; max-height: 96vh; display: flex; align-items: center; justify-content: center; border-radius: 12px;">
+        <button class="float-close" id="lightboxClose" aria-label="Close" style="color: white; right: -24px; top: -24px; z-index: 960; background: rgba(0,0,0,0.5); border:none; width: 40px; height: 40px; line-height: 1.2;">&times;</button>
+        <img id="lightboxImage" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);" alt="Zoomed Action Item Image"/>
+      </div>
+    </div>
+
     <!-- ==========================================================================
         PUBLIC DIGITAL REPORT VIEW — shown instead of the dashboard when the
         page is opened with a ?report=<row> URL parameter (i.e. via the QR
@@ -1054,7 +1058,7 @@
         <div class="app-bar-inner">
           <div class="app-bar-title">
             <i class="bi bi-clipboard2-check-fill"></i>
-            <span>Digital Safety Report</span>
+            <span>AITR_ Safety &amp; Environment Dept</span>
           </div>
         </div>
       </header>
