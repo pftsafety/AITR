@@ -1009,7 +1009,7 @@
               </div>
             </div>
 
-            <div class="form-field">
+            <div class="form-field" id="addPhotoField">
               <label>Photo Evidence (optional)</label>
               <label class="image-upload-box" for="addImageInput">
                 <i class="bi bi-camera upload-icon"></i>
@@ -1724,9 +1724,11 @@
              <div class="footer-item"><div class="footer-label">Target Date</div><div class="footer-value">${cleanDate(obj["Target Date"]) || '-'}</div></div>
              <div class="footer-item"><div class="footer-label">Status</div><div class="footer-value"><div class="status-badge-wrap" style="align-items:flex-start;"><span class="status-badge ${badgeClass}">${badgeText}</span>${overdueTag}</div></div></div>
            </div>
-           <div class="footer-btn-area"><button id="btnMarkClosedFooter" class="btn-mark-closed" ${btnState} style="${btnStyle}">${btnText}</button></div>
+           <div class="footer-btn-area" style="display:flex;flex-direction:column;gap:8px;"><button id="btnEditFromDrawer" type="button" style="padding:10px 20px;font-size:13px;border-radius:8px;background:#fff;color:var(--brand-500);border:1px solid var(--brand-500);font-weight:700;cursor:pointer;width:100%;"><i class="bi bi-pencil-square"></i> Edit</button><button id="btnMarkClosedFooter" class="btn-mark-closed" ${btnState} style="${btnStyle}">${btnText}</button></div>
         `;
         floatFooter.innerHTML = footerHTML;
+        const btnEdit = document.getElementById('btnEditFromDrawer');
+        if (btnEdit) btnEdit.onclick = function(){ closeFloatCard(); openEditCard(obj); };
 
         const btnFooter = document.getElementById('btnMarkClosedFooter');
         if(btnFooter && !isClosed){
@@ -1855,6 +1857,7 @@
       const appToastText = document.getElementById('appToastText');
 
       let selectedImages = []; // [{dataUrl, name}, ...]
+      let editingRow = null;   // set while the form edits an existing row
 
       function showToast(message, isError){
         appToastText.textContent = message;
@@ -1889,8 +1892,39 @@
         document.getElementById('addInitiationDate').value = todayIso();
       }
 
+      function setAddFormMode(obj){
+        const isEdit = !!obj;
+        editingRow = isEdit ? obj.Row : null;
+        const titleEl = document.querySelector('#addCard .title-row h5');
+        if (titleEl) titleEl.textContent = isEdit ? 'Edit Action Item' : 'Add New Action Item';
+        btnSaveAddition.innerHTML = isEdit
+          ? '<i class="bi bi-check2-circle"></i> Save Changes'
+          : '<i class="bi bi-check2-circle"></i> Save Action Item';
+        const photoField = document.getElementById('addPhotoField');
+        if (photoField) photoField.style.display = isEdit ? 'none' : '';
+        if (isEdit) {
+          document.getElementById('addDepartment').value = obj.Department || '';
+          document.getElementById('addDescription').value = obj.Description || '';
+          document.getElementById('addReference').value = obj.Reference || '';
+          document.getElementById('addInitiationDate').value = dateHelper(obj["Initiation Date"]) || '';
+          document.getElementById('addTargetDate').value = dateHelper(obj["Target Date"]) || '';
+          document.getElementById('addActionBy').value = obj["Action By"] || '';
+          document.getElementById('addResponsiblePerson').value = obj["Responsible Person"] || '';
+        }
+      }
+
+      function openEditCard(obj){
+        resetAddForm();
+        setAddFormMode(obj);
+        addBackdrop.classList.add('show');
+        addCard.classList.remove('hiding');
+        addBackdrop.setAttribute('aria-hidden','false');
+        addCard.setAttribute('aria-hidden','false');
+      }
+
       function openAddCard(){
         resetAddForm();
+        setAddFormMode(null);
         addBackdrop.classList.add('show');
         addCard.classList.remove('hiding');
         addBackdrop.setAttribute('aria-hidden','false');
@@ -2001,7 +2035,8 @@
 
         try{
           const form = new URLSearchParams();
-          form.append('Action', 'create');
+          form.append('Action', editingRow ? 'edit' : 'create');
+          if (editingRow) form.append('Row', editingRow);
           form.append('Department', department);
           form.append('Description', description);
           form.append('Reference', reference);
@@ -2010,7 +2045,7 @@
           form.append('ActionBy', actionBy);
           form.append('ResponsiblePerson', responsiblePerson);
           form.append('Status', 'Open');
-          if (selectedImages.length){
+          if (selectedImages.length && !editingRow){
             selectedImages.forEach(img => {
               form.append('ImageData', img.dataUrl);
               form.append('ImageName', img.name);
@@ -2024,7 +2059,7 @@
           if(!resp || !resp.success) throw new Error((resp && resp.message) || 'Unknown error');
 
           closeAddCard();
-          showToast('Action item added successfully.');
+          showToast(editingRow ? 'Action item updated.' : 'Action item added successfully.');
           await fetchData();
         }catch(err){
           console.error('Add item failed', err);
