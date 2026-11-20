@@ -1587,7 +1587,7 @@
       function insTrim(v){ return String(v == null ? '' : v).trim(); }
 
       function insPeriodCutoff(p){
-        const months = { '3m': 3, '6m': 6, '12m': 12 }[p];
+        const months = { '1m': 1, '3m': 3, '6m': 6, '12m': 12 }[p];
         if (!months) return null;
         const d = new Date(todayIso() + 'T00:00:00');
         d.setMonth(d.getMonth() - months);
@@ -1622,7 +1622,7 @@
         const field = (key, label, inner) => '<label class="ins-f"><span>' + label + '</span><select onchange="setInsFilter(\'' + key + '\', this.value)">' + inner + '</select></label>';
         const statusOpts = [['', 'All'], ['track', 'On track'], ['Overdue', 'Overdue'], ['Closed', 'Closed']]
           .map(([v, l]) => '<option value="' + v + '"' + (insFilters.status === v ? ' selected' : '') + '>' + l + '</option>').join('');
-        const periodOpts = [['all', 'All time'], ['3m', 'Last 3 months'], ['6m', 'Last 6 months'], ['12m', 'Last 12 months']]
+        const periodOpts = [['all', 'All time'], ['1m', 'Last 1 month'], ['3m', 'Last 3 months'], ['6m', 'Last 6 months'], ['12m', 'Last 12 months']]
           .map(([v, l]) => '<option value="' + v + '"' + (insFilters.period === v ? ' selected' : '') + '>' + l + '</option>').join('');
         return '<div class="ins-filters">' +
           field('dept', 'Department', opts(depts, insFilters.dept)) +
