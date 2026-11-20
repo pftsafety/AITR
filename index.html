@@ -2255,7 +2255,8 @@
           ? '<i class="bi bi-check2-circle"></i> Save Changes'
           : '<i class="bi bi-check2-circle"></i> Save Action Item';
         const photoField = document.getElementById('addPhotoField');
-        if (photoField) photoField.style.display = isEdit ? 'none' : '';
+        if (photoField) photoField.style.display = '';
+        uploadHintText.textContent = isEdit ? 'Existing photos are kept. Tap to add more.' : 'Tap to attach photos';
         if (isEdit) {
           document.getElementById('addDepartment').value = obj.Department || '';
           document.getElementById('addDescription').value = obj.Description || '';
@@ -2399,7 +2400,7 @@
           form.append('ActionBy', actionBy);
           form.append('ResponsiblePerson', responsiblePerson);
           form.append('Status', 'Open');
-          if (selectedImages.length && !editingRow){
+          if (selectedImages.length){
             selectedImages.forEach(img => {
               form.append('ImageData', img.dataUrl);
               form.append('ImageName', img.name);
