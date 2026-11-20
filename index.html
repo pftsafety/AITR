@@ -708,6 +708,42 @@
       #btnInsightsToggle.active{ background: rgba(255,255,255,0.3); }
       @media (max-width:768px){ .ins-kpis{ grid-template-columns:repeat(2,1fr); } .ins-grid{ grid-template-columns:1fr; } }
 
+      /* ---- Dashboard filters, animation and extra charts ---- */
+      .ins-filters{ display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; background:#fff; border:1px solid var(--muted-border); border-radius:12px; padding:12px 14px; margin-bottom:14px; animation: insFade .5s ease both; }
+      .ins-f{ display:flex; flex-direction:column; gap:4px; flex:1 1 150px; min-width:0; }
+      .ins-f span{ font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; font-weight:700; color:var(--text-muted); }
+      .ins-f select{ height:34px; border:1px solid #CBD5E1; border-radius:8px; padding:0 8px; font-size:13px; background:#fff; color:var(--text-strong); }
+      .ins-reset{ height:34px; padding:0 14px; border-radius:8px; border:1px solid var(--brand-500); background:#fff; color:var(--brand-500); font-weight:700; font-size:12.5px; cursor:pointer; }
+      .ins-reset:hover{ background:var(--brand-500); color:#fff; }
+      .ins-meta{ font-size:12px; color:var(--text-muted); margin:-6px 0 12px; }
+      .ins-kpis{ grid-template-columns:repeat(5,1fr); }
+      .ins-kpi.warn{ border-top-color:var(--accent-600); } .ins-kpi.warn b{ color:var(--status-open-text); }
+      .ins-card{ transition: transform .2s ease, box-shadow .2s ease; animation: insRise .55s cubic-bezier(.2,.8,.2,1) both; }
+      .ins-card:hover{ transform: translateY(-2px); box-shadow: 0 8px 22px rgba(16,32,48,.08); }
+      .ins-kpi{ animation: insRise .5s cubic-bezier(.2,.8,.2,1) both; }
+      .ins-kpis > .ins-kpi:nth-child(2){ animation-delay:60ms; }
+      .ins-kpis > .ins-kpi:nth-child(3){ animation-delay:120ms; }
+      .ins-kpis > .ins-kpi:nth-child(4){ animation-delay:180ms; }
+      .ins-kpis > .ins-kpi:nth-child(5){ animation-delay:240ms; }
+      .ins-grid > .ins-card:nth-child(1){ animation-delay:100ms; }
+      .ins-grid > .ins-card:nth-child(2){ animation-delay:170ms; }
+      .ins-grid > .ins-card:nth-child(3){ animation-delay:240ms; }
+      .ins-grid > .ins-card:nth-child(4){ animation-delay:310ms; }
+      .ins-grid > .ins-card:nth-child(5){ animation-delay:380ms; }
+      .ins-grid > .ins-card:nth-child(6){ animation-delay:450ms; }
+      .ins-grid > .ins-card:nth-child(7){ animation-delay:520ms; }
+      .ins-grid > .ins-card:nth-child(8){ animation-delay:590ms; }
+      .ins-grid > .ins-card:nth-child(9){ animation-delay:660ms; }
+      .ins-grid > .ins-card:nth-child(10){ animation-delay:730ms; }
+      @keyframes insRise { from { opacity:0; translate:0 14px; } to { opacity:1; translate:0 0; } }
+      @keyframes insFade { from { opacity:0; } to { opacity:1; } }
+      .ins-hfill-a, .ins-hfill-b{ width:0; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+      .ins-colbar{ height:0; transition: height .9s cubic-bezier(.2,.8,.2,1); }
+      .ins-seg{ transition: stroke-dasharray 1s cubic-bezier(.2,.8,.2,1); }
+      .ins-kpi b, .ins-donut-val{ font-variant-numeric: tabular-nums; }
+      @media (max-width:768px){ .ins-kpis{ grid-template-columns:repeat(2,1fr); } .ins-f{ flex-basis:45%; } }
+      @media (prefers-reduced-motion: reduce){ .ins-card, .ins-kpi, .ins-filters{ animation:none; } .ins-hfill-a, .ins-hfill-b, .ins-colbar, .ins-seg{ transition:none; } }
+
       /* ==========================================================================
           PUBLIC DIGITAL REPORT VIEW (opened via the QR code on a generated doc)
           ========================================================================== */
@@ -1513,9 +1549,14 @@
       }
 
       /* ==========================================================================
-          INSIGHTS DASHBOARD — charts and auto-generated insights from allData
+          INSIGHTS DASHBOARD — filters, animated charts, and generated insights
           ========================================================================== */
       let insightsOn = false;
+      const INS_DEFAULT_FILTERS = { dept: '', person: '', ref: '', status: '', period: 'all' };
+      let insFilters = Object.assign({}, INS_DEFAULT_FILTERS);
+
+      function setInsFilter(key, value){ insFilters[key] = value; renderInsights(); }
+      function resetInsFilters(){ insFilters = Object.assign({}, INS_DEFAULT_FILTERS); renderInsights(); }
 
       function setInsightsView(on){
         insightsOn = on;
@@ -1540,48 +1581,105 @@
       }
 
       function insEsc(s){
-        return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       }
 
-      function computeInsights(){
-        const rows = allData || [];
+      function insTrim(v){ return String(v == null ? '' : v).trim(); }
+
+      function insPeriodCutoff(p){
+        const months = { '3m': 3, '6m': 6, '12m': 12 }[p];
+        if (!months) return null;
+        const d = new Date(todayIso() + 'T00:00:00');
+        d.setMonth(d.getMonth() - months);
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+
+      function filterInsRows(rows){
+        const cutoff = insPeriodCutoff(insFilters.period);
+        return rows.filter(r => {
+          if (insFilters.dept && insTrim(r.Department) !== insFilters.dept) return false;
+          if (insFilters.ref && insTrim(r.Reference) !== insFilters.ref) return false;
+          if (insFilters.person && !splitPersons(r["Responsible Person"]).includes(insFilters.person)) return false;
+          const st = getComputedStatus(r);
+          if (insFilters.status === 'track' && st !== 'Open') return false;
+          if (insFilters.status === 'Overdue' && st !== 'Overdue') return false;
+          if (insFilters.status === 'Closed' && st !== 'Closed') return false;
+          if (cutoff) {
+            const iso = dateHelper(r["Initiation Date"]);
+            if (!iso || iso < cutoff) return false;
+          }
+          return true;
+        });
+      }
+
+      function insFilterBarHtml(all){
+        const uniq = fn => [...new Set(all.flatMap(fn).filter(Boolean))].sort();
+        const depts = uniq(r => [insTrim(r.Department)]);
+        const refs = uniq(r => [insTrim(r.Reference)]);
+        const persons = uniq(r => splitPersons(r["Responsible Person"]));
+        const opts = (list, selected) => '<option value="">All</option>' + list.map(v =>
+          '<option value="' + insEsc(v) + '"' + (v === selected ? ' selected' : '') + '>' + insEsc(v) + '</option>').join('');
+        const field = (key, label, inner) => '<label class="ins-f"><span>' + label + '</span><select onchange="setInsFilter(\'' + key + '\', this.value)">' + inner + '</select></label>';
+        const statusOpts = [['', 'All'], ['track', 'On track'], ['Overdue', 'Overdue'], ['Closed', 'Closed']]
+          .map(([v, l]) => '<option value="' + v + '"' + (insFilters.status === v ? ' selected' : '') + '>' + l + '</option>').join('');
+        const periodOpts = [['all', 'All time'], ['3m', 'Last 3 months'], ['6m', 'Last 6 months'], ['12m', 'Last 12 months']]
+          .map(([v, l]) => '<option value="' + v + '"' + (insFilters.period === v ? ' selected' : '') + '>' + l + '</option>').join('');
+        return '<div class="ins-filters">' +
+          field('dept', 'Department', opts(depts, insFilters.dept)) +
+          field('person', 'Person', opts(persons, insFilters.person)) +
+          field('ref', 'Reference', opts(refs, insFilters.ref)) +
+          field('status', 'Status', statusOpts) +
+          field('period', 'Period', periodOpts) +
+          '<button type="button" class="ins-reset" onclick="resetInsFilters()">Reset</button></div>';
+      }
+
+      function computeInsights(all){
+        const rows = filterInsRows(all);
         const total = rows.length;
         const closed = rows.filter(r => getComputedStatus(r) === 'Closed');
         const open = rows.filter(r => getComputedStatus(r) !== 'Closed');
-        const overdue = rows.filter(r => getComputedStatus(r) === 'Overdue');
+        const overdue = open.filter(r => getComputedStatus(r) === 'Overdue');
         const onTrack = open.length - overdue.length;
         const closureRate = total ? Math.round((closed.length / total) * 100) : 0;
 
-        const deptMap = {};
-        open.forEach(r => {
-          const d = (r.Department || '').toString().trim() || 'Unspecified';
-          if (!deptMap[d]) deptMap[d] = { label: d, open: 0, overdue: 0 };
-          if (getComputedStatus(r) === 'Overdue') deptMap[d].overdue++; else deptMap[d].open++;
-        });
-        const depts = Object.values(deptMap).sort((a, b) => (b.open + b.overdue) - (a.open + a.overdue));
+        const bucketsBy = (list, keysOf) => {
+          const m = {};
+          list.forEach(r => {
+            const late = getComputedStatus(r) === 'Overdue';
+            keysOf(r).forEach(k => {
+              if (!m[k]) m[k] = { label: k, open: 0, overdue: 0 };
+              if (late) m[k].overdue++; else m[k].open++;
+            });
+          });
+          return Object.values(m).sort((a, b) => (b.open + b.overdue) - (a.open + a.overdue));
+        };
+        const one = v => [insTrim(v) || 'Unspecified'];
+        const people = (v, fallback) => { const p = splitPersons(v); return p.length ? p : [fallback]; };
+        const depts = bucketsBy(open, r => one(r.Department));
+        const refs = bucketsBy(open, r => one(r.Reference));
+        const actionBy = bucketsBy(open, r => people(r["Action By"], 'Unspecified')).slice(0, 6);
+        const workload = bucketsBy(open, r => people(r["Responsible Person"], 'Unassigned')).slice(0, 6);
 
-        const buckets = [
-          { label: '0–6 d', min: 0, max: 6, n: 0 },
-          { label: '7–13 d', min: 7, max: 13, n: 0 },
-          { label: '14–29 d', min: 14, max: 29, n: 0 },
-          { label: '30+ d', min: 30, max: Infinity, n: 0 }
-        ];
-        let oldest = null;
+        const mkBuckets = defs => defs.map(d => ({ label: d[0], min: d[1], max: d[2], n: 0 }));
+        const dayBuckets = mkBuckets([['0–6 d', 0, 6], ['7–13 d', 7, 13], ['14–29 d', 14, 29], ['30+ d', 30, Infinity]]);
+        const sevBuckets = mkBuckets([['1–7 d', 1, 7], ['8–14 d', 8, 14], ['15–30 d', 15, 30], ['31+ d', 31, Infinity]]);
+        const upBuckets = mkBuckets([['0–7 d', 0, 7], ['8–14 d', 8, 14], ['15–21 d', 15, 21], ['22–28 d', 22, 28]]);
+        const place = (buckets, v) => { const b = buckets.find(x => v >= x.min && v <= x.max); if (b) b.n++; };
+
+        let oldest = null, dueSoon = 0;
         open.forEach(r => {
           const days = insDaysSince(dateHelper(r["Initiation Date"]));
-          if (days == null || days < 0) return;
-          const b = buckets.find(x => days >= x.min && days <= x.max);
-          if (b) b.n++;
-          if (!oldest || days > oldest.days) oldest = { days: days, r: r };
+          if (days != null && days >= 0) {
+            place(dayBuckets, days);
+            if (!oldest || days > oldest.days) oldest = { days: days, r: r };
+          }
+          const targetIso = dateHelper(r["Target Date"]);
+          if (!targetIso) return;
+          const until = -insDaysSince(targetIso);
+          if (until < 0) { place(sevBuckets, -until); return; }
+          place(upBuckets, until);
+          if (until <= 7) dueSoon++;
         });
-
-        const refMap = {};
-        open.forEach(r => {
-          const k = (r.Reference || '').toString().trim() || 'Unspecified';
-          if (!refMap[k]) refMap[k] = { label: k, open: 0, overdue: 0 };
-          if (getComputedStatus(r) === 'Overdue') refMap[k].overdue++; else refMap[k].open++;
-        });
-        const refs = Object.values(refMap).sort((a, b) => (b.open + b.overdue) - (a.open + a.overdue));
 
         const now = new Date(todayIso() + 'T00:00:00');
         const months = [];
@@ -1596,18 +1694,12 @@
           if (m) m.n++;
         });
 
-        const respMap = {};
-        open.forEach(r => {
-          const people = splitPersons(r["Responsible Person"]);
-          (people.length ? people : ['Unassigned']).forEach(p => { respMap[p] = (respMap[p] || 0) + 1; });
-        });
-        const resp = Object.keys(respMap).map(k => ({ label: k, n: respMap[k] })).sort((a, b) => b.n - a.n).slice(0, 5);
-
-        return { total, closed: closed.length, open: open.length, overdue: overdue.length, onTrack, closureRate, depts, buckets, oldest, months, resp, refs };
+        return { total, closed: closed.length, open: open.length, overdue: overdue.length, onTrack, closureRate, dueSoon,
+                 depts, refs, actionBy, workload, dayBuckets, sevBuckets, upBuckets, months, oldest };
       }
 
       function buildInsightBullets(s){
-        if (!s.total) return ['No action items yet.'];
+        if (!s.total) return ['No items match the selected filters.'];
         const out = [];
         if (s.overdue > 0) {
           const worst = s.depts.slice().sort((a, b) => b.overdue - a.overdue)[0];
@@ -1616,12 +1708,25 @@
         } else {
           out.push('No overdue items. Everything still open is within its target date.');
         }
+        if (s.dueSoon) out.push(s.dueSoon + (s.dueSoon === 1 ? ' item is' : ' items are') + ' due in the next 7 days.');
         if (s.oldest) out.push('Oldest open item is ' + s.oldest.days + ' days old (' + (s.oldest.r.Department || 'unspecified') + ', Row ' + s.oldest.r.Row + ').');
         out.push('Closure rate is ' + s.closureRate + '% (' + s.closed + ' of ' + s.total + ' closed).');
         const cur = s.months[s.months.length - 1].n, prev = s.months[s.months.length - 2].n;
         if (cur || prev) out.push(cur + (cur === 1 ? ' item' : ' items') + ' raised this month, versus ' + prev + ' last month.');
-        if (s.resp.length) out.push('Most open items are assigned to ' + s.resp[0].label + ' (' + s.resp[0].n + ').');
+        if (s.workload.length) out.push('Most open items are assigned to ' + s.workload[0].label + ' (' + (s.workload[0].open + s.workload[0].overdue) + ').');
         return out;
+      }
+
+      const INS_STACK_LEGEND = '<div class="ins-legend"><span class="ins-legend-item"><i style="background:#E2A03C"></i>On track</span><span class="ins-legend-item"><i style="background:#B23A2E"></i>Overdue</span></div>';
+      const INS_COL_COLOR = '#2E3137';
+
+      function insCard(title, body, extra){
+        return '<div class="ins-card' + (extra ? ' ' + extra : '') + '"><div class="ins-title">' + title + '</div>' + body + '</div>';
+      }
+
+      function insKpi(label, value, cls){
+        const isNum = typeof value === 'number';
+        return '<div class="ins-kpi ' + (cls || '') + '"><span>' + label + '</span><b' + (isNum ? ' data-count="' + value + '"' : '') + '>' + (isNum ? 0 : value) + '</b></div>';
       }
 
       function htmlHBars(items){
@@ -1630,7 +1735,7 @@
         return items.map(it => {
           const pa = ((it.a || 0) / max) * 100, pb = ((it.b || 0) / max) * 100;
           return '<div class="ins-hrow"><div class="ins-hlabel" title="' + insEsc(it.label) + '">' + insEsc(it.label) + '</div>' +
-            '<div class="ins-htrack"><div class="ins-hfill-a" style="width:' + pa + '%"></div><div class="ins-hfill-b" style="width:' + pb + '%"></div></div>' +
+            '<div class="ins-htrack"><div class="ins-hfill-a" data-w="' + pa + '%"></div><div class="ins-hfill-b" data-w="' + pb + '%"></div></div>' +
             '<div class="ins-hval">' + ((it.a || 0) + (it.b || 0)) + '</div></div>';
         }).join('');
       }
@@ -1639,7 +1744,7 @@
         const max = Math.max(1, ...values);
         return '<div class="ins-cols">' + values.map((v, i) =>
           '<div class="ins-col"><div class="ins-colval">' + v + '</div>' +
-          '<div class="ins-colbar" style="height:' + Math.round((v / max) * 110) + 'px;background:' + color + '"></div>' +
+          '<div class="ins-colbar" data-h="' + Math.round((v / max) * 110) + 'px" style="background:' + color + '"></div>' +
           '<div class="ins-collbl">' + insEsc(labels[i]) + '</div></div>').join('') + '</div>';
       }
 
@@ -1649,49 +1754,63 @@
         let off = 0;
         let s = '<svg viewBox="0 0 120 120" width="150" height="150" role="img">';
         s += '<circle cx="60" cy="60" r="' + R + '" fill="none" stroke="#EEEDE8" stroke-width="16"/>';
-        if (total) segments.forEach(seg => {
-          const len = (seg.value / total) * C;
-          if (len > 0) s += '<circle cx="60" cy="60" r="' + R + '" fill="none" stroke="' + seg.color + '" stroke-width="16" stroke-dasharray="' + len + ' ' + (C - len) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 60 60)"/>';
+        segments.forEach(seg => {
+          const len = total ? (seg.value / total) * C : 0;
+          if (len > 0) s += '<circle class="ins-seg" cx="60" cy="60" r="' + R + '" fill="none" stroke="' + seg.color + '" stroke-width="16" data-dash="' + len + ' ' + (C - len) + '" stroke-dasharray="0 ' + C + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90 60 60)"/>';
           off += len;
         });
-        s += '<text x="60" y="64" text-anchor="middle" class="ins-donut-val">' + total + '</text></svg>';
+        s += '<text x="60" y="64" text-anchor="middle" class="ins-donut-val" data-count="' + total + '">' + total + '</text></svg>';
         return s;
+      }
+
+      function animateInsights(){
+        const root = document.getElementById('insightsView');
+        if (!root) return;
+        requestAnimationFrame(() => setTimeout(() => {
+          root.querySelectorAll('[data-w]').forEach(el => { el.style.width = el.dataset.w; });
+          root.querySelectorAll('[data-h]').forEach(el => { el.style.height = el.dataset.h; });
+          root.querySelectorAll('[data-dash]').forEach(el => { el.style.strokeDasharray = el.dataset.dash; });
+        }, 60));
+        root.querySelectorAll('[data-count]').forEach(el => {
+          const n = Number(el.dataset.count) || 0;
+          el.textContent = '0';
+          animateCount(el, n, 800);
+        });
       }
 
       function renderInsights(){
         const el = document.getElementById('insightsView');
         if (!el) return;
-        const s = computeInsights();
-        const legend = items => items.map(i => '<span class="ins-legend-item"><i style="background:' + i.color + '"></i>' + insEsc(i.label) + (i.value !== '' ? ' <b>' + i.value + '</b>' : '') + '</span>').join('');
+        const all = allData || [];
+        const s = computeInsights(all);
         const donutSegs = [
           { label: 'On track', value: s.onTrack, color: '#E2A03C' },
           { label: 'Overdue', value: s.overdue, color: '#B23A2E' },
           { label: 'Closed', value: s.closed, color: '#1F6B3C' }
         ];
+        const legendFor = segs => '<div class="ins-legend">' + segs.map(g =>
+          '<span class="ins-legend-item"><i style="background:' + g.color + '"></i>' + insEsc(g.label) + '</span>').join('') + '</div>';
+        const stack = list => htmlHBars(list.map(d => ({ label: d.label, a: d.open, b: d.overdue })));
         el.innerHTML =
+          insFilterBarHtml(all) +
           '<div class="ins-kpis">' +
-            '<div class="ins-kpi"><span>Total</span><b>' + s.total + '</b></div>' +
-            '<div class="ins-kpi"><span>Open</span><b>' + s.open + '</b></div>' +
-            '<div class="ins-kpi danger"><span>Overdue</span><b>' + s.overdue + '</b></div>' +
-            '<div class="ins-kpi success"><span>Closure rate</span><b>' + s.closureRate + '%</b></div>' +
+            insKpi('Total', s.total) + insKpi('Open', s.open) + insKpi('Overdue', s.overdue, 'danger') +
+            insKpi('Due in 7 days', s.dueSoon, 'warn') + insKpi('Closure rate', s.closureRate + '%', 'success') +
           '</div>' +
+          '<div class="ins-meta">' + (s.total === all.length ? 'Showing all ' + all.length + ' items' : 'Showing ' + s.total + ' of ' + all.length + ' items') + '</div>' +
           '<div class="ins-grid">' +
-            '<div class="ins-card"><div class="ins-title">Status</div>' + svgDonut(donutSegs) +
-              '<div class="ins-legend">' + legend(donutSegs) + '</div></div>' +
-            '<div class="ins-card"><div class="ins-title">Insights</div><ul class="ins-bullets">' +
-              buildInsightBullets(s).map(t => '<li>' + insEsc(t) + '</li>').join('') + '</ul></div>' +
-            '<div class="ins-card ins-wide"><div class="ins-title">Open items by department</div>' +
-              htmlHBars(s.depts.map(d => ({ label: d.label, a: d.open, b: d.overdue }))) +
-              '<div class="ins-legend">' + legend([{ label: 'On track', value: '', color: '#E2A03C' }, { label: 'Overdue', value: '', color: '#B23A2E' }]) + '</div></div>' +
-            '<div class="ins-card ins-wide"><div class="ins-title">Open items by reference</div>' +
-              htmlHBars(s.refs.map(d => ({ label: d.label, a: d.open, b: d.overdue }))) + '</div>' +
-            '<div class="ins-card"><div class="ins-title">Days open (open items)</div>' +
-              htmlColumns(s.buckets.map(b => b.label), s.buckets.map(b => b.n), '#2E3137') + '</div>' +
-            '<div class="ins-card"><div class="ins-title">Items raised, last 6 months</div>' +
-              htmlColumns(s.months.map(m => m.label), s.months.map(m => m.n), '#2E3137') + '</div>' +
-            '<div class="ins-card ins-wide"><div class="ins-title">Workload (open items per person)</div>' +
-              htmlHBars(s.resp.map(r => ({ label: r.label, a: r.n, b: 0 }))) + '</div>' +
+            insCard('Status', svgDonut(donutSegs) + legendFor(donutSegs)) +
+            insCard('Insights', '<ul class="ins-bullets">' + buildInsightBullets(s).map(t => '<li>' + insEsc(t) + '</li>').join('') + '</ul>') +
+            insCard('Open items by department', stack(s.depts) + INS_STACK_LEGEND, 'ins-wide') +
+            insCard('Open items by reference', stack(s.refs) + INS_STACK_LEGEND) +
+            insCard('Open items by action by', stack(s.actionBy) + INS_STACK_LEGEND) +
+            insCard('Days open (open items)', htmlColumns(s.dayBuckets.map(b => b.label), s.dayBuckets.map(b => b.n), INS_COL_COLOR)) +
+            insCard('Overdue severity (days past target)', htmlColumns(s.sevBuckets.map(b => b.label), s.sevBuckets.map(b => b.n), '#B23A2E')) +
+            insCard('Due in the next 4 weeks', htmlColumns(s.upBuckets.map(b => b.label), s.upBuckets.map(b => b.n), '#E2A03C')) +
+            insCard('Items raised, last 6 months', htmlColumns(s.months.map(m => m.label), s.months.map(m => m.n), INS_COL_COLOR)) +
+            insCard('Workload (open items per person)', stack(s.workload) + INS_STACK_LEGEND, 'ins-wide') +
           '</div>';
+        animateInsights();
       }
 
       document.getElementById('btnInsightsToggle').addEventListener('click', () => setInsightsView(!insightsOn));
