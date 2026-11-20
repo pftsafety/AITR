@@ -694,6 +694,17 @@
       .ins-bullets{ margin:0; padding-left:18px; font-size:13.5px; line-height:1.55; color:var(--ink); }
       .ins-bullets li{ margin-bottom:6px; }
       .ins-empty{ color:var(--text-muted); font-size:13px; padding:20px 0; }
+      .ins-hrow{ display:grid; grid-template-columns:minmax(90px,30%) 1fr 34px; align-items:center; gap:10px; margin-bottom:10px; font-size:12.5px; }
+      .ins-hlabel{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-strong); font-weight:600; }
+      .ins-htrack{ background:#EEEDE8; border-radius:5px; height:10px; display:flex; overflow:hidden; }
+      .ins-hfill-a{ background:#E2A03C; height:100%; }
+      .ins-hfill-b{ background:#B23A2E; height:100%; }
+      .ins-hval{ font-family:var(--font-mono); font-weight:600; text-align:right; }
+      .ins-cols{ display:flex; align-items:flex-end; gap:8px; height:160px; }
+      .ins-col{ flex:1; min-width:0; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
+      .ins-colbar{ width:70%; border-radius:4px 4px 0 0; }
+      .ins-colval{ font-family:var(--font-mono); font-size:12px; font-weight:600; margin-bottom:4px; }
+      .ins-collbl{ font-size:11px; color:var(--text-muted); margin-top:6px; white-space:nowrap; }
       #btnInsightsToggle.active{ background: rgba(255,255,255,0.3); }
       @media (max-width:768px){ .ins-kpis{ grid-template-columns:repeat(2,1fr); } .ins-grid{ grid-template-columns:1fr; } }
 
@@ -1426,10 +1437,19 @@
         }
       }
 
+      // Splits one Responsible Person cell into individual names, so
+      // "Mr. Vimal, Mr. Sanoop" / "Mr. Vimal & Mr. Sanoop" count as two people.
+      function splitPersons(v){
+        return String(v == null ? '' : v)
+          .split(/\s*(?:,|&|\/|;|\+|\n|\band\b)\s*/i)
+          .map(s => s.trim())
+          .filter(Boolean);
+      }
+
       function populateFilters(){
         const currentDept = filterDept.value; const currentResp = filterResp.value; const currentRef = filterRef.value;
         const depts = [...new Set(allData.map(d => d.Department).filter(Boolean))].sort();
-        const resps = [...new Set(allData.map(d => d["Responsible Person"]).filter(Boolean))].sort();
+        const resps = [...new Set(allData.flatMap(d => splitPersons(d["Responsible Person"])))].sort();
         const refs = [...new Set(allData.map(d => d.Reference).filter(Boolean))].sort();
         const actionBys = [...new Set(allData.map(d => d["Action By"]).filter(Boolean))].sort();
 
@@ -1555,6 +1575,14 @@
           if (!oldest || days > oldest.days) oldest = { days: days, r: r };
         });
 
+        const refMap = {};
+        open.forEach(r => {
+          const k = (r.Reference || '').toString().trim() || 'Unspecified';
+          if (!refMap[k]) refMap[k] = { label: k, open: 0, overdue: 0 };
+          if (getComputedStatus(r) === 'Overdue') refMap[k].overdue++; else refMap[k].open++;
+        });
+        const refs = Object.values(refMap).sort((a, b) => (b.open + b.overdue) - (a.open + a.overdue));
+
         const now = new Date(todayIso() + 'T00:00:00');
         const months = [];
         for (let i = 5; i >= 0; i--) {
@@ -1570,12 +1598,12 @@
 
         const respMap = {};
         open.forEach(r => {
-          const p = (r["Responsible Person"] || '').toString().trim() || 'Unassigned';
-          respMap[p] = (respMap[p] || 0) + 1;
+          const people = splitPersons(r["Responsible Person"]);
+          (people.length ? people : ['Unassigned']).forEach(p => { respMap[p] = (respMap[p] || 0) + 1; });
         });
         const resp = Object.keys(respMap).map(k => ({ label: k, n: respMap[k] })).sort((a, b) => b.n - a.n).slice(0, 5);
 
-        return { total, closed: closed.length, open: open.length, overdue: overdue.length, onTrack, closureRate, depts, buckets, oldest, months, resp };
+        return { total, closed: closed.length, open: open.length, overdue: overdue.length, onTrack, closureRate, depts, buckets, oldest, months, resp, refs };
       }
 
       function buildInsightBullets(s){
@@ -1596,36 +1624,23 @@
         return out;
       }
 
-      function svgHBars(items){
+      function htmlHBars(items){
         if (!items.length) return '<div class="ins-empty">No data yet.</div>';
         const max = Math.max(1, ...items.map(i => (i.a || 0) + (i.b || 0)));
-        const rowH = 26, labelW = 120, barW = 220;
-        const h = items.length * rowH + 4;
-        let s = '<svg viewBox="0 0 ' + (labelW + barW + 40) + ' ' + h + '" role="img">';
-        items.forEach((it, i) => {
-          const y = i * rowH + 4;
-          const wa = ((it.a || 0) / max) * barW, wb = ((it.b || 0) / max) * barW;
-          s += '<text x="0" y="' + (y + 14) + '" class="ins-lbl">' + insEsc(it.label) + '</text>';
-          s += '<rect x="' + labelW + '" y="' + (y + 4) + '" width="' + barW + '" height="12" rx="4" class="ins-track"/>';
-          if (wa) s += '<rect x="' + labelW + '" y="' + (y + 4) + '" width="' + wa + '" height="12" rx="4" fill="#E2A03C"/>';
-          if (wb) s += '<rect x="' + (labelW + wa) + '" y="' + (y + 4) + '" width="' + wb + '" height="12" rx="4" fill="#B23A2E"/>';
-          s += '<text x="' + (labelW + barW + 6) + '" y="' + (y + 14) + '" class="ins-val">' + ((it.a || 0) + (it.b || 0)) + '</text>';
-        });
-        return s + '</svg>';
+        return items.map(it => {
+          const pa = ((it.a || 0) / max) * 100, pb = ((it.b || 0) / max) * 100;
+          return '<div class="ins-hrow"><div class="ins-hlabel" title="' + insEsc(it.label) + '">' + insEsc(it.label) + '</div>' +
+            '<div class="ins-htrack"><div class="ins-hfill-a" style="width:' + pa + '%"></div><div class="ins-hfill-b" style="width:' + pb + '%"></div></div>' +
+            '<div class="ins-hval">' + ((it.a || 0) + (it.b || 0)) + '</div></div>';
+        }).join('');
       }
 
-      function svgColumns(labels, values, color){
+      function htmlColumns(labels, values, color){
         const max = Math.max(1, ...values);
-        const W = 320, H = 150, pad = 24, bw = (W - pad * 2) / labels.length;
-        let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img">';
-        values.forEach((v, i) => {
-          const bh = (v / max) * (H - pad - 22);
-          const x = pad + i * bw + bw * 0.2, w = bw * 0.6, y = H - pad - bh;
-          s += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + bh + '" rx="4" fill="' + color + '"/>';
-          s += '<text x="' + (x + w / 2) + '" y="' + (y - 4) + '" text-anchor="middle" class="ins-val">' + v + '</text>';
-          s += '<text x="' + (x + w / 2) + '" y="' + (H - 6) + '" text-anchor="middle" class="ins-lbl">' + insEsc(labels[i]) + '</text>';
-        });
-        return s + '</svg>';
+        return '<div class="ins-cols">' + values.map((v, i) =>
+          '<div class="ins-col"><div class="ins-colval">' + v + '</div>' +
+          '<div class="ins-colbar" style="height:' + Math.round((v / max) * 110) + 'px;background:' + color + '"></div>' +
+          '<div class="ins-collbl">' + insEsc(labels[i]) + '</div></div>').join('') + '</div>';
       }
 
       function svgDonut(segments){
@@ -1666,14 +1681,16 @@
             '<div class="ins-card"><div class="ins-title">Insights</div><ul class="ins-bullets">' +
               buildInsightBullets(s).map(t => '<li>' + insEsc(t) + '</li>').join('') + '</ul></div>' +
             '<div class="ins-card ins-wide"><div class="ins-title">Open items by department</div>' +
-              svgHBars(s.depts.map(d => ({ label: d.label, a: d.open, b: d.overdue }))) +
+              htmlHBars(s.depts.map(d => ({ label: d.label, a: d.open, b: d.overdue }))) +
               '<div class="ins-legend">' + legend([{ label: 'On track', value: '', color: '#E2A03C' }, { label: 'Overdue', value: '', color: '#B23A2E' }]) + '</div></div>' +
+            '<div class="ins-card ins-wide"><div class="ins-title">Open items by reference</div>' +
+              htmlHBars(s.refs.map(d => ({ label: d.label, a: d.open, b: d.overdue }))) + '</div>' +
             '<div class="ins-card"><div class="ins-title">Days open (open items)</div>' +
-              svgColumns(s.buckets.map(b => b.label), s.buckets.map(b => b.n), '#2E3137') + '</div>' +
+              htmlColumns(s.buckets.map(b => b.label), s.buckets.map(b => b.n), '#2E3137') + '</div>' +
             '<div class="ins-card"><div class="ins-title">Items raised, last 6 months</div>' +
-              svgColumns(s.months.map(m => m.label), s.months.map(m => m.n), '#2E3137') + '</div>' +
+              htmlColumns(s.months.map(m => m.label), s.months.map(m => m.n), '#2E3137') + '</div>' +
             '<div class="ins-card ins-wide"><div class="ins-title">Workload (open items per person)</div>' +
-              svgHBars(s.resp.map(r => ({ label: r.label, a: r.n, b: 0 }))) + '</div>' +
+              htmlHBars(s.resp.map(r => ({ label: r.label, a: r.n, b: 0 }))) + '</div>' +
           '</div>';
       }
 
@@ -1691,7 +1708,7 @@
 
         // 2. Apply Dropdown Filters
         if(filterDept.value) data = data.filter(r => (r.Department || '') === filterDept.value);
-        if(filterResp.value) data = data.filter(r => (r["Responsible Person"] || '') === filterResp.value);
+        if(filterResp.value) data = data.filter(r => splitPersons(r["Responsible Person"]).includes(filterResp.value));
         if(filterRef.value) data = data.filter(r => (r.Reference || '') === filterRef.value);
         if(filterYear.value && filterYear.value !== "") { 
           data = data.filter(r => dateHelper(r["Initiation Date"]).startsWith(filterYear.value));
@@ -1824,7 +1841,7 @@
       function updateStats(){
         let contextData = allData || [];
         if(filterDept.value) contextData = contextData.filter(r => (r.Department || '') === filterDept.value);
-        if(filterResp.value) contextData = contextData.filter(r => (r["Responsible Person"] || '') === filterResp.value);
+        if(filterResp.value) contextData = contextData.filter(r => splitPersons(r["Responsible Person"]).includes(filterResp.value));
         if(filterRef.value) contextData = contextData.filter(r => (r.Reference || '') === filterRef.value);
         if(filterYear.value) contextData = contextData.filter(r => dateHelper(r["Initiation Date"]).startsWith(filterYear.value));
         if(filterMonth.value) contextData = contextData.filter(r => dateHelper(r["Initiation Date"]).substring(5,7) === filterMonth.value);
